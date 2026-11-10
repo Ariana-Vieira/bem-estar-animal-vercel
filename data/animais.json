@@ -1,0 +1,657 @@
+[
+  {
+    "idAnimal": 1,
+    "nome": "Kairi",
+    "imagem": "/kairi.jpg",
+    "especie": "gato",
+    "sexo": "femea",
+    "porte": "pequeno",
+    "idade": "06 meses a 07 anos",
+    "peso": "ate 5kg",
+    "raca": "Indef.",
+    "vacinacao": true,
+    "ambiente": "ambos",
+    "exercicio": "pouco",
+    "experiencia": "iniciante",
+    "personalidade": "calmo",
+    "status": "disponivel",
+    "cor": "cinza",
+    "idadeDetalhada": "2 anos",
+    "pesoDetalhado": "3.5 kg",
+    "descricao": "Kairi é uma gatinha meiga e tranquila que adora aninhar no colo. Convive bem com crianças e outros pets, sendo perfeita para apartamentos e lares tranquilos.",
+    "vermifugado": true,
+    "castrado": true,
+    "microchipado": true,
+    "alergico": false,
+    "fotos": [
+      { "idFoto": 2, "urlFoto": "/kairi5.png" },
+      { "idFoto": 3, "urlFoto": "/kairi2.png" },
+      { "idFoto": 4, "urlFoto": "/kairi3.png" },
+      { "idFoto": 5, "urlFoto": "/kairi4.png" }
+    ],
+    "vacinas": [
+      {
+        "idVacinaAnimal": 1,
+        "nomeVacina": "Tríplice Felina",
+        "lote": "TF2024-001",
+        "dataAplicacao": "2024-03-10",
+        "dataValidade": "2025-03-10",
+        "doseRecomendada": "Anual",
+        "observacoes": ""
+      },
+      {
+        "idVacinaAnimal": 2,
+        "nomeVacina": "Antirrábica",
+        "lote": "AR2024-011",
+        "dataAplicacao": "2024-03-10",
+        "dataValidade": "2025-03-10",
+        "doseRecomendada": "Anual",
+        "observacoes": ""
+      }
+    ],
+    "prontuarios": [
+      {
+        "idProntuario": 1,
+        "diagnostico": "Animal saudável, apta para adoção. Castração e microchipagem realizadas.",
+        "dataProntuario": "2024-03-10",
+        "statusTratamento": "concluido",
+        "observacoes": "Vermifugada com Drontal.",
+        "cadastrado": true,
+        "microchipado": true,
+        "veterinario": {
+          "idUsuario": 1,
+          "nomeUsuario": "Dra. Camila Rocha"
+        }
+      }
+    ],
+    "adestramento": [
+      {
+        "idAdestramento": 1,
+        "dataAdestramento": "2024-04-01",
+        "comportamentoAlvo": "Comandos básicos",
+        "metodoUtilizado": "Reforço positivo com petiscos",
+        "nivelTreinamento": "basico",
+        "resultadoFinal": "aprovado",
+        "observacao": "",
+        "truques": ["Senta", "Dá a patinha"],
+        "tempoAdestramento": "1 mês",
+        "adestrador": {
+          "idUsuario": 5,
+          "nomeUsuario": "Ana Costa"
+        }
+      }
+    ]
+  },
+  {
+    "idAnimal": 2,
+    "nome": "Organela",
+    "imagem": "/organela.jpg",
+    "especie": "gato",
+    "sexo": "femea",
+    "porte": "pequeno",
+    "idade": "06 meses a 07 anos",
+    "peso": "ate 5kg",
+    "raca": "Indef.",
+    "vacinacao": true,
+    "ambiente": "ambos",
+    "exercicio": "pouco",
+    "experiencia": "iniciante",
+    "personalidade": "calmo",
+    "status": "disponivel",
+    "cor": "laranja e branco",
+    "idadeDetalhada": "3 anos",
+    "pesoDetalhado": "4 kg",
+    "descricao": "Organela é curiosa e adora explorar cada cantinho da casa. Apesar de independente, é muito carinhosa com quem ela confia. Perfeita para lares calmos.",
+    "vermifugado": true,
+    "castrado": true,
+    "microchipado": false,
+    "alergico": false,
+    "fotos": [
+      { "idFoto": 6, "urlFoto": "/organela.jpg" },
+      { "idFoto": 7, "urlFoto": "/organela5.png" },
+      { "idFoto": 8, "urlFoto": "/organela3.png" },
+      { "idFoto": 9, "urlFoto": "/organela4.png" },
+      { "idFoto": 10, "urlFoto": "/organela2.png" }
+    ],
+    "vacinas": [
+      {
+        "idVacinaAnimal": 3,
+        "nomeVacina": "Tríplice Felina",
+        "lote": "TF2024-002",
+        "dataAplicacao": "2024-02-20",
+        "dataValidade": "2025-02-20",
+        "doseRecomendada": "Anual",
+        "observacoes": ""
+      },
+      {
+        "idVacinaAnimal": 4,
+        "nomeVacina": "Antirrábica",
+        "lote": "AR2024-012",
+        "dataAplicacao": "2024-02-20",
+        "dataValidade": "2025-02-20",
+        "doseRecomendada": "Anual",
+        "observacoes": ""
+      }
+    ],
+    "prontuarios": [
+      {
+        "idProntuario": 2,
+        "diagnostico": "Animal saudável, apta para adoção. Sem microchip.",
+        "dataProntuario": "2024-02-20",
+        "statusTratamento": "concluido",
+        "observacoes": "Vermifugada com Drontal.",
+        "cadastrado": true,
+        "microchipado": false,
+        "veterinario": {
+          "idUsuario": 2,
+          "nomeUsuario": "Dr. Lucas Ferreira"
+        }
+      }
+    ],
+    "adestramento": [
+      {
+        "idAdestramento": 2,
+        "dataAdestramento": "2024-03-10",
+        "comportamentoAlvo": "Comandos básicos",
+        "metodoUtilizado": "Reforço positivo com petiscos",
+        "nivelTreinamento": "basico",
+        "resultadoFinal": "aprovado",
+        "observacao": "",
+        "truques": ["Senta", "Deita"],
+        "tempoAdestramento": "2 meses",
+        "adestrador": {
+          "idUsuario": 6,
+          "nomeUsuario": "Carlos Mendes"
+        }
+      }
+    ]
+  },
+  {
+    "idAnimal": 3,
+    "nome": "Sunday",
+    "imagem": "/sunday.jpg",
+    "especie": "gato",
+    "sexo": "macho",
+    "porte": "medio",
+    "idade": "06 meses a 07 anos",
+    "peso": "de 06 a 15kg",
+    "raca": "Indef.",
+    "vacinacao": true,
+    "ambiente": "ambos",
+    "exercicio": "pouco",
+    "experiencia": "intermediario",
+    "personalidade": "ativo",
+    "status": "disponivel",
+    "cor": "preto e branco",
+    "idadeDetalhada": "1 ano e 6 meses",
+    "pesoDetalhado": "5 kg",
+    "descricao": "Sunday é um gato cheio de energia que adora brincar e chamar atenção. Se dá bem com crianças maiores e precisa de bastante enriquecimento ambiental.",
+    "vermifugado": true,
+    "castrado": true,
+    "microchipado": true,
+    "alergico": false,
+    "fotos": [
+      { "idFoto": 11, "urlFoto": "/sunday.jpg" },
+      { "idFoto": 12, "urlFoto": "/sunday2.png" },
+      { "idFoto": 13, "urlFoto": "/sunday3.png" },
+      { "idFoto": 14, "urlFoto": "/sunday4.png" },
+      { "idFoto": 15, "urlFoto": "/sunday5.png" }
+    ],
+    "vacinas": [
+      {
+        "idVacinaAnimal": 5,
+        "nomeVacina": "Tríplice Felina",
+        "lote": "TF2024-003",
+        "dataAplicacao": "2024-01-15",
+        "dataValidade": "2025-01-15",
+        "doseRecomendada": "Anual",
+        "observacoes": ""
+      },
+      {
+        "idVacinaAnimal": 6,
+        "nomeVacina": "Antirrábica",
+        "lote": "AR2024-013",
+        "dataAplicacao": "2024-01-15",
+        "dataValidade": "2025-01-15",
+        "doseRecomendada": "Anual",
+        "observacoes": ""
+      }
+    ],
+    "prontuarios": [
+      {
+        "idProntuario": 3,
+        "diagnostico": "Animal saudável, apto para adoção. Castrado e microchipado.",
+        "dataProntuario": "2024-01-15",
+        "statusTratamento": "concluido",
+        "observacoes": "Vermifugado com Drontal.",
+        "cadastrado": true,
+        "microchipado": true,
+        "veterinario": {
+          "idUsuario": 1,
+          "nomeUsuario": "Dra. Camila Rocha"
+        }
+      }
+    ],
+    "adestramento": [
+      {
+        "idAdestramento": 3,
+        "dataAdestramento": "2024-02-05",
+        "comportamentoAlvo": "Comandos básicos e busca",
+        "metodoUtilizado": "Clicker training",
+        "nivelTreinamento": "intermediario",
+        "resultadoFinal": "aprovado",
+        "observacao": "Muito inteligente e responsivo.",
+        "truques": ["Senta", "Busca o brinquedo"],
+        "tempoAdestramento": "3 meses",
+        "adestrador": {
+          "idUsuario": 7,
+          "nomeUsuario": "Maria Oliveira"
+        }
+      }
+    ]
+  },
+  {
+    "idAnimal": 4,
+    "nome": "Lineu",
+    "imagem": "/lineu.jpg",
+    "especie": "gato",
+    "sexo": "macho",
+    "porte": "pequeno",
+    "idade": "menor que 03 meses",
+    "peso": "ate 5kg",
+    "raca": "Indef.",
+    "vacinacao": true,
+    "ambiente": "ambos",
+    "exercicio": "pouco",
+    "experiencia": "iniciante",
+    "personalidade": "calmo",
+    "status": "disponivel",
+    "cor": "tigrado",
+    "idadeDetalhada": "2 meses",
+    "pesoDetalhado": "0.8 kg",
+    "descricao": "Lineu é um gatinho bebê ainda descobrindo o mundo. Docinho e brincalhão, se apega rapidamente à sua família e vai crescer junto com você.",
+    "vermifugado": true,
+    "castrado": false,
+    "microchipado": false,
+    "alergico": false,
+    "fotos": [
+      { "idFoto": 16, "urlFoto": "/lineu.jpg" },
+      { "idFoto": 17, "urlFoto": "/lineu5.png" },
+      { "idFoto": 18, "urlFoto": "/lineu3.png" },
+      { "idFoto": 19, "urlFoto": "/lineu4.png" },
+      { "idFoto": 20, "urlFoto": "/lineu2.png" }
+    ],
+    "vacinas": [
+      {
+        "idVacinaAnimal": 7,
+        "nomeVacina": "Tríplice Felina",
+        "lote": "TF2024-004",
+        "dataAplicacao": "2024-04-05",
+        "dataValidade": "2025-04-05",
+        "doseRecomendada": "1ª dose",
+        "observacoes": "Aguarda 2ª dose em 30 dias."
+      }
+    ],
+    "prontuarios": [
+      {
+        "idProntuario": 4,
+        "diagnostico": "Filhote saudável. Castração e microchipagem serão realizadas após 6 meses.",
+        "dataProntuario": "2024-04-05",
+        "statusTratamento": "em_acompanhamento",
+        "observacoes": "Vermifugado com Drontal Júnior.",
+        "cadastrado": true,
+        "microchipado": false,
+        "veterinario": {
+          "idUsuario": 2,
+          "nomeUsuario": "Dr. Lucas Ferreira"
+        }
+      }
+    ],
+    "adestramento": []
+  },
+  {
+    "idAnimal": 5,
+    "nome": "Cora",
+    "imagem": "/cora.jpg",
+    "especie": "cachorro",
+    "sexo": "femea",
+    "porte": "pequeno",
+    "idade": "06 meses a 07 anos",
+    "peso": "ate 5kg",
+    "raca": "Vira-lata",
+    "vacinacao": true,
+    "ambiente": "ambos",
+    "exercicio": "moderado",
+    "experiencia": "iniciante",
+    "personalidade": "ativo",
+    "status": "disponivel",
+    "cor": "caramelo",
+    "idadeDetalhada": "1 ano",
+    "pesoDetalhado": "4 kg",
+    "descricao": "Cora é uma cachorrinha animada e cheia de amor para dar. Adora passear e brincar no parque, e se dá super bem com crianças e outros animais.",
+    "vermifugado": true,
+    "castrado": true,
+    "microchipado": true,
+    "alergico": false,
+    "fotos": [
+      { "idFoto": 21, "urlFoto": "/cora.jpg" },
+      { "idFoto": 22, "urlFoto": "/cora2.png" },
+      { "idFoto": 23, "urlFoto": "/cora3.png" },
+      { "idFoto": 24, "urlFoto": "/cora4.png" },
+      { "idFoto": 25, "urlFoto": "/cora5.png" }
+    ],
+    "vacinas": [
+      {
+        "idVacinaAnimal": 8,
+        "nomeVacina": "V8",
+        "lote": "V82024-001",
+        "dataAplicacao": "2024-02-10",
+        "dataValidade": "2025-02-10",
+        "doseRecomendada": "Anual",
+        "observacoes": ""
+      },
+      {
+        "idVacinaAnimal": 9,
+        "nomeVacina": "Antirrábica",
+        "lote": "AR2024-014",
+        "dataAplicacao": "2024-02-10",
+        "dataValidade": "2025-02-10",
+        "doseRecomendada": "Anual",
+        "observacoes": ""
+      }
+    ],
+    "prontuarios": [
+      {
+        "idProntuario": 5,
+        "diagnostico": "Animal saudável, apta para adoção. Castrada e microchipada.",
+        "dataProntuario": "2024-02-10",
+        "statusTratamento": "concluido",
+        "observacoes": "Vermifugada com Drontal.",
+        "cadastrado": true,
+        "microchipado": true,
+        "veterinario": {
+          "idUsuario": 3,
+          "nomeUsuario": "Dra. Beatriz Nunes"
+        }
+      }
+    ],
+    "adestramento": [
+      {
+        "idAdestramento": 4,
+        "dataAdestramento": "2024-03-01",
+        "comportamentoAlvo": "Comandos básicos",
+        "metodoUtilizado": "Reforço positivo com petiscos",
+        "nivelTreinamento": "basico",
+        "resultadoFinal": "aprovado",
+        "observacao": "",
+        "truques": ["Senta", "Deita", "Dá a patinha"],
+        "tempoAdestramento": "2 meses",
+        "adestrador": {
+          "idUsuario": 8,
+          "nomeUsuario": "José Duarte"
+        }
+      }
+    ]
+  },
+  {
+    "idAnimal": 6,
+    "nome": "Sakura",
+    "imagem": "/sakura1.jpg",
+    "especie": "cachorro",
+    "sexo": "femea",
+    "porte": "pequeno",
+    "idade": "06 meses a 07 anos",
+    "peso": "de 06 a 15kg",
+    "raca": "Dachshund",
+    "vacinacao": true,
+    "ambiente": "ambos",
+    "exercicio": "moderado",
+    "experiencia": "iniciante",
+    "personalidade": "ativo",
+    "status": "disponivel",
+    "cor": "caramelo",
+    "idadeDetalhada": "2 anos",
+    "pesoDetalhado": "6 kg",
+    "descricao": "Sakura é uma Dachshund alegre e cheia de amor para dar. Adora brincar e receber carinho, se dá muito bem com crianças e é perfeita para apartamentos e lares tranquilos.",
+    "vermifugado": true,
+    "castrado": true,
+    "microchipado": true,
+    "alergico": false,
+    "fotos": [
+      { "idFoto": 26, "urlFoto": "/sakura1.jpg" },
+      { "idFoto": 27, "urlFoto": "/sakura2.jpg" },
+      { "idFoto": 28, "urlFoto": "/sakura3.jpg" },
+      { "idFoto": 29, "urlFoto": "/sakura4.jpg" },
+      { "idFoto": 30, "urlFoto": "/sakura5.jpg" }
+    ],
+    "vacinas": [
+      {
+        "idVacinaAnimal": 10,
+        "nomeVacina": "V8",
+        "lote": "V82024-002",
+        "dataAplicacao": "2024-05-10",
+        "dataValidade": "2025-05-10",
+        "doseRecomendada": "Anual",
+        "observacoes": ""
+      },
+      {
+        "idVacinaAnimal": 11,
+        "nomeVacina": "Antirrábica",
+        "lote": "AR2024-018",
+        "dataAplicacao": "2024-05-10",
+        "dataValidade": "2025-05-10",
+        "doseRecomendada": "Anual",
+        "observacoes": ""
+      }
+    ],
+    "prontuarios": [
+      {
+        "idProntuario": 6,
+        "diagnostico": "Animal saudável, apta para adoção. Castrada e microchipada.",
+        "dataProntuario": "2024-05-10",
+        "statusTratamento": "concluido",
+        "observacoes": "Vermifugada com Drontal.",
+        "cadastrado": true,
+        "microchipado": true,
+        "veterinario": {
+          "idUsuario": 3,
+          "nomeUsuario": "Dra. Beatriz Nunes"
+        }
+      }
+    ],
+    "adestramento": [
+      {
+        "idAdestramento": 5,
+        "dataAdestramento": "2024-06-01",
+        "comportamentoAlvo": "Comandos básicos",
+        "metodoUtilizado": "Reforço positivo com petiscos",
+        "nivelTreinamento": "basico",
+        "resultadoFinal": "aprovado",
+        "observacao": "",
+        "truques": ["Senta", "Deita", "Dá a patinha"],
+        "tempoAdestramento": "3 meses",
+        "adestrador": {
+          "idUsuario": 8,
+          "nomeUsuario": "José Duarte"
+        }
+      }
+    ]
+  },
+  {
+    "idAnimal": 7,
+    "nome": "Oprah",
+    "imagem": "/oprah.jpg",
+    "especie": "cachorro",
+    "sexo": "femea",
+    "porte": "medio",
+    "idade": "acima de 07 anos",
+    "peso": "de 06 a 15kg",
+    "raca": "Vira-lata",
+    "vacinacao": true,
+    "ambiente": "ambos",
+    "exercicio": "moderado",
+    "experiencia": "intermediario",
+    "personalidade": "calmo",
+    "status": "disponivel",
+    "cor": "caramelo e branco",
+    "idadeDetalhada": "8 anos",
+    "pesoDetalhado": "12 kg",
+    "descricao": "Oprah é uma cadela madura e tranquila que adora uma boa cochilada no sofá. Muito carinhosa e paciente, perfeita para lares que buscam um companheiro sereno.",
+    "vermifugado": true,
+    "castrado": true,
+    "microchipado": true,
+    "alergico": false,
+    "fotos": [
+      { "idFoto": 31, "urlFoto": "/oprah.jpg" },
+      { "idFoto": 32, "urlFoto": "/oprah2.png" },
+      { "idFoto": 33, "urlFoto": "/oprah3.png" },
+      { "idFoto": 34, "urlFoto": "/oprah4.png" },
+      { "idFoto": 35, "urlFoto": "/oprah5.png " }
+    ],
+    "vacinas": [
+      {
+        "idVacinaAnimal": 12,
+        "nomeVacina": "V10",
+        "lote": "V102024-002",
+        "dataAplicacao": "2024-03-05",
+        "dataValidade": "2025-03-05",
+        "doseRecomendada": "Anual",
+        "observacoes": ""
+      },
+      {
+        "idVacinaAnimal": 13,
+        "nomeVacina": "Antirrábica",
+        "lote": "AR2024-016",
+        "dataAplicacao": "2024-03-05",
+        "dataValidade": "2025-03-05",
+        "doseRecomendada": "Anual",
+        "observacoes": ""
+      },
+      {
+        "idVacinaAnimal": 14,
+        "nomeVacina": "Gripe Canina",
+        "lote": "GC2024-003",
+        "dataAplicacao": "2024-03-05",
+        "dataValidade": "2025-03-05",
+        "doseRecomendada": "Anual",
+        "observacoes": "Recomendado por histórico de convívio com outros cães."
+      }
+    ],
+    "prontuarios": [
+      {
+        "idProntuario": 7,
+        "diagnostico": "Animal sênior saudável. Recomenda-se exames semestrais.",
+        "dataProntuario": "2024-03-05",
+        "statusTratamento": "em_acompanhamento",
+        "observacoes": "Suplementação com condroitina para articulações.",
+        "cadastrado": true,
+        "microchipado": true,
+        "veterinario": {
+          "idUsuario": 3,
+          "nomeUsuario": "Dra. Beatriz Nunes"
+        }
+      }
+    ],
+    "adestramento": [
+      {
+        "idAdestramento": 6,
+        "dataAdestramento": "2018-06-01",
+        "comportamentoAlvo": "Socialização e comandos básicos",
+        "metodoUtilizado": "Reforço positivo",
+        "nivelTreinamento": "intermediario",
+        "resultadoFinal": "aprovado",
+        "observacao": "Cadela muito dócil e bem treinada.",
+        "truques": ["Senta", "Deita", "Não late sem motivo"],
+        "tempoAdestramento": "1 ano",
+        "adestrador": {
+          "idUsuario": 10,
+          "nomeUsuario": "Fernanda Santos"
+        }
+      }
+    ]
+  },
+  {
+    "idAnimal": 8,
+    "nome": "Silva",
+    "imagem": "/silva.jpg",
+    "especie": "cachorro",
+    "sexo": "macho",
+    "porte": "grande",
+    "idade": "06 meses a 07 anos",
+    "peso": "de 06 a 15kg",
+    "raca": "Vira-lata",
+    "vacinacao": true,
+    "ambiente": "casa",
+    "exercicio": "muito",
+    "experiencia": "experiente",
+    "personalidade": "ativo",
+    "status": "disponivel",
+    "cor": "cinza e branco",
+    "idadeDetalhada": "2 anos",
+    "pesoDetalhado": "30 kg",
+    "descricao": "Silva é um cão corajoso e brincalhão que adora atividades ao ar livre. Se dá bem com outros cães e precisa de um tutor disposto a se exercitar junto.",
+    "vermifugado": true,
+    "castrado": false,
+    "microchipado": true,
+    "alergico": false,
+    "fotos": [
+      { "idFoto": 36, "urlFoto": "/silva.jpg" },
+      { "idFoto": 37, "urlFoto": "/silva2.png" },
+      { "idFoto": 38, "urlFoto": "/silva3.png" },
+      { "idFoto": 39, "urlFoto": "/silva4.png" },
+      { "idFoto": 40, "urlFoto": "/silva5.png" }
+    ],
+    "vacinas": [
+      {
+        "idVacinaAnimal": 15,
+        "nomeVacina": "V10",
+        "lote": "V102024-003",
+        "dataAplicacao": "2024-04-10",
+        "dataValidade": "2025-04-10",
+        "doseRecomendada": "Anual",
+        "observacoes": ""
+      },
+      {
+        "idVacinaAnimal": 16,
+        "nomeVacina": "Antirrábica",
+        "lote": "AR2024-017",
+        "dataAplicacao": "2024-04-10",
+        "dataValidade": "2025-04-10",
+        "doseRecomendada": "Anual",
+        "observacoes": ""
+      }
+    ],
+    "prontuarios": [
+      {
+        "idProntuario": 8,
+        "diagnostico": "Animal saudável, apto para adoção. Microchipado. Castração pendente.",
+        "dataProntuario": "2024-04-10",
+        "statusTratamento": "em_acompanhamento",
+        "observacoes": "Vermifugado com Drontal Plus. Castração agendada.",
+        "cadastrado": true,
+        "microchipado": true,
+        "veterinario": {
+          "idUsuario": 4,
+          "nomeUsuario": "Dr. Ricardo Almeida"
+        }
+      }
+    ],
+    "adestramento": [
+      {
+        "idAdestramento": 7,
+        "dataAdestramento": "2024-01-10",
+        "comportamentoAlvo": "Comandos avançados e convívio com outros cães",
+        "metodoUtilizado": "Reforço positivo e socialização em grupo",
+        "nivelTreinamento": "avancado",
+        "resultadoFinal": "aprovado",
+        "observacao": "Energia alta, recomenda-se exercício diário.",
+        "truques": ["Senta", "Deita", "Busca", "Dá a patinha"],
+        "tempoAdestramento": "4 meses",
+        "adestrador": {
+          "idUsuario": 11,
+          "nomeUsuario": "Pedro Alves"
+        }
+      }
+    ]
+  }
+]

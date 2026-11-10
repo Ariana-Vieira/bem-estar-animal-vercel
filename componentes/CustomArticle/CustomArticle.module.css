@@ -1,0 +1,156 @@
+
+.card-atividade {
+    background-color: transparent;
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 300px;
+}
+
+.card-passeio {
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.card-atividade-header {
+    background-color: #348888;
+    padding: 20px;
+    text-align: center;
+}
+
+.card-atividade-header h3 {
+    color: #ffffff;
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin: 0;
+    font-family: "Outfit", sans-serif;
+}
+
+.card-atividade-body {
+    padding: 30px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.card-atividade-body p {
+    color: #000000;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0;
+    font-family: "Outfit", sans-serif;
+}
+
+.card-atividade-img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.card-atividade-btn {
+    background-color: #FA7F08;
+    color: #ffffff;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 0 0 20px 20px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-family: "Outfit", sans-serif;
+    width: 100%;
+}
+
+.card-atividade-btn:hover {
+    background-color: #e06e00;
+}
+
+/* Estilos específicos para Card Passeio Divertido */
+.card-passeio-wrapper {
+    background-color: #348888;
+    padding: 10px 25px 15px 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border-radius: 20px;
+}
+
+.card-passeio-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50px;
+    padding: 0;
+}
+
+.card-passeio-header h3 {
+    color: #ffffff;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin: 0;
+    font-family: "Outfit", sans-serif;
+    text-align: center;
+}
+
+.card-passeio-content-wrapper {
+    display: flex;
+    width: 100%;
+}
+
+.card-passeio-text-container {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 18px 22px;
+    flex: 1;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    min-height: 120px;
+}
+
+.card-passeio-img {
+    flex: 0 0 auto;
+    width: 220px;
+    height: auto;
+    object-fit: contain;
+}
+
+.card-passeio-btn {
+    background-color: #FA7F08;
+    color: #ffffff;
+    border: none;
+    padding: 12px 40px;
+    border-radius: 20px;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-family: "Outfit", sans-serif;
+    width: 100%;
+    align-self: center;
+}
+
+.card-passeio-btn:hover {
+    background-color: #e06e00;
+}
+
+.card-passeio-text-container p {
+    color: #000000;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    margin: 0;
+    font-family: "Outfit", sans-serif;
+    text-align: left;
+    flex: 1;
+}

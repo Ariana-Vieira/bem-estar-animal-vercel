@@ -1,0 +1,12 @@
+
+
+.filtro-container {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}

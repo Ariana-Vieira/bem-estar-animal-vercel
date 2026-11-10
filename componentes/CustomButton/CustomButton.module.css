@@ -1,0 +1,45 @@
+
+
+.verTodos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 25px;
+  width: 100%;
+  grid-column: 1 / -1;
+}
+
+.verTodosBtn {
+  background-color: #FA7F08;
+  color: #fff;
+  font-size: 20px;
+  border: none;
+  padding: 10px 30px;
+  border-radius: 50px;
+  width: 665px;
+  height: 45px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 8px 10px rgba(158, 248, 238, 0.4);
+}
+
+.verTodosBtn:hover {
+  background-color: #e06e00;
+}
+
+/* Button Limpar recomendações */
+
+.clearBtn {
+    background: none;
+    border: 1px solid #348888;
+    border-radius: 50px;
+    padding: 4px 14px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #348888;
+}
+
+.clearBtn:hover {
+  background-color: #9ef8ee;
+}

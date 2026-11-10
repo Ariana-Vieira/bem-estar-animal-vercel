@@ -1,0 +1,7 @@
+﻿{
+  "version": 2,
+  "builds": [
+    { "src": "index_ProjIn.js", "use": "@vercel/node", "config": { "includeFiles": ["img/**"] } }
+  ],
+  "routes": [{ "src": "/(.*)", "dest": "index_ProjIn.js" }]
+}

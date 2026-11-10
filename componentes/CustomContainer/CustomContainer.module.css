@@ -1,0 +1,17 @@
+
+/* Container Cards Atividades (Passeio e Festa do Pijama) */
+.cards-atividades-container {
+    width: 90%;
+    margin: 25px auto 40px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cards-atividades-wrapper {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+}

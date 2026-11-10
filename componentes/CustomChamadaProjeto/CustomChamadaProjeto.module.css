@@ -1,0 +1,534 @@
+.hero {
+  width: 100%;
+  min-height: 400px;
+  position: relative;
+  background: linear-gradient(90deg, #063236 0%, #0E6D73 45%, #28B8C0 85%, #2BC5CD 100%);
+  color: #ffffff;
+  border-radius: 32px;
+  padding: 48px 64px;
+  margin: 28px auto 32px;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Lighting Effects ── */
+.glowLeft {
+  position: absolute;
+  top: -120px;
+  left: -80px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.10) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glowRight {
+  position: absolute;
+  bottom: -80px;
+  right: -60px;
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(43, 197, 205, 0.20) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glowCenter {
+  position: absolute;
+  top: 40%;
+  right: 30%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.06) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(50px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Layout ── */
+.heroContent {
+  display: flex;
+  gap: 48px;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.textGroup {
+  flex: 0 0 54%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.imageWrapper {
+  flex: 0 0 46%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+/* ── Badge ── */
+.badgeWrapper {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: fit-content;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  width: 360px;
+  height: 56px;
+  padding: 0 34px 0 24px;
+  border-radius: 999px;
+  background: #0D4F4F;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 19px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  border: 2px solid #FFD54F;
+  box-shadow:
+    0 0 10px rgba(255, 213, 79, 0.80),
+    0 0 25px rgba(255, 213, 79, 0.50),
+    0 0 50px rgba(255, 213, 79, 0.25),
+    0 0 80px rgba(255, 213, 79, 0.10),
+    inset 0 0 8px rgba(255, 213, 79, 0.25),
+    inset 0 0 20px rgba(255, 213, 79, 0.10);
+  text-shadow:
+    0 0 7px rgba(255, 213, 79, 0.9),
+    0 0 20px rgba(255, 213, 79, 0.5),
+    0 0 40px rgba(255, 213, 79, 0.2);
+  position: relative;
+}
+
+.badgeIconCircle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #FFD633;
+  flex-shrink: 0;
+}
+
+.badgeIconCircle :global(.material-symbols-rounded) {
+  font-size: 28px;
+  color: #ffffff;
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  line-height: 1;
+}
+
+/* ── Badge decorative strokes ── */
+.badgeDecorLeft,
+.badgeDecorRight {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.badgeDecorLeft span,
+.badgeDecorRight span {
+  display: block;
+  width: 16px;
+  height: 3px;
+  background: #eec714;
+  border-radius: 1px;
+  opacity: 0.7;
+  box-shadow: 0 0 6px rgba(238, 199, 20, 0.40);
+}
+
+.badgeDecorLeft span:nth-child(1) { transform: rotate(35deg); }
+.badgeDecorLeft span:nth-child(2) { transform: rotate(0deg); margin-left: -5px; }
+.badgeDecorLeft span:nth-child(3) { transform: rotate(-35deg); }
+
+.badgeDecorRight span:nth-child(1) { transform: rotate(-35deg); }
+.badgeDecorRight span:nth-child(2) { transform: rotate(0deg); margin-right: -5px; }
+.badgeDecorRight span:nth-child(3) { transform: rotate(35deg); }
+
+/* ── Title ── */
+.title {
+  font-size: 44px;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1.1;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.titleLine {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: -4px;
+}
+
+.titleLineMain {
+  width: 56px;
+  height: 3px;
+  background: #22BABB;
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(34, 186, 187, 0.30);
+}
+
+.titleLineSecondary {
+  width: 16px;
+  height: 3px;
+  background: #1A8A8A;
+  border-radius: 2px;
+}
+
+/* ── Subtitle ── */
+.subtitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.6;
+  max-width: 580px;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* ── Glassmorphism Info Box ── */
+.infoBox {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 16px;
+  max-width: 540px;
+  color: rgba(255, 255, 255, 0.95);
+  font-style: italic;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.infoIconCol {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+  padding-right: 14px;
+}
+
+.infoCircle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #1BA8A8;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.heartOverlay {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+.infoCircle :global(.material-symbols-rounded) {
+  position: absolute;
+  z-index: 1;
+  color: #348888;
+  font-size: 18px;
+  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 20;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  line-height: 1;
+}
+
+.infoDivider {
+  width: 1.5px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+.infoBox p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+}
+
+/* ── CTA Button ── */
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  height: 52px;
+  padding: 0 28px;
+  border-radius: 50px;
+  background: var(--cor-laranja);
+  color: var(--cor-branco);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  border: 2px solid var(--cor-laranja);
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(250, 127, 8, 0.45);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.ctaButton:hover {
+  background: transparent;
+  color: var(--cor-branco);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(250, 127, 8, 0.35);
+}
+
+.arrowIcon {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.2s ease;
+}
+
+.ctaButton:hover .arrowIcon {
+  transform: translateX(3px);
+}
+
+/* ── Image ── */
+.imageGlow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(34, 186, 187, 0.20) 0%, rgba(255, 255, 255, 0.05) 35%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.imageWrapper img {
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+  border-radius: 24px;
+  object-fit: cover;
+  aspect-ratio: 16 / 10;
+  border: 1.5px solid rgba(34, 186, 187, 0.25);
+  box-shadow:
+    0 12px 36px rgba(0, 0, 0, 0.12),
+    0 4px 12px rgba(0, 0, 0, 0.05);
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.imageWrapper img:hover {
+  transform: scale(1.02);
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.16),
+    0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+/* Decorative dots below image */
+.imageDots {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+  position: relative;
+  z-index: 1;
+}
+
+.imageDots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.imageDots span:nth-child(2) { opacity: 0.6; }
+.imageDots span:nth-child(3) { opacity: 0.4; }
+.imageDots span:nth-child(4) { opacity: 0.6; }
+.imageDots span:nth-child(5) { opacity: 0.4; }
+.imageDots span:nth-child(6) { opacity: 0.6; }
+
+/* ── Responsive: Tablet ── */
+@media (max-width: 1100px) {
+  .hero {
+    padding: 40px 36px;
+  }
+
+  .heroContent {
+    gap: 36px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .hero {
+    padding: 36px 32px;
+    min-height: auto;
+  }
+
+  .heroContent {
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .textGroup {
+    flex: 0 0 100%;
+    width: 100%;
+  }
+
+  .imageWrapper {
+    flex: 0 0 100%;
+    width: 100%;
+  }
+
+  .title {
+    font-size: 38px;
+  }
+
+  .subtitle {
+    font-size: 17px;
+    max-width: 100%;
+  }
+}
+
+/* ── Responsive: Mobile ── */
+@media (max-width: 768px) {
+  .hero {
+    padding: 24px 20px;
+    border-radius: 24px;
+    min-height: auto;
+    margin: 16px auto 24px;
+  }
+
+  .heroContent {
+    gap: 20px;
+  }
+
+  .textGroup {
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .badgeWrapper {
+    margin: 0 auto;
+  }
+
+  .badgeDecorLeft,
+  .badgeDecorRight {
+    display: none;
+  }
+
+  .badge {
+    width: auto;
+    height: 44px;
+    font-size: 14px;
+    padding: 0 16px;
+    gap: 8px;
+  }
+
+  .badgeIconCircle {
+    width: 26px;
+    height: 26px;
+  }
+
+  .badgeIcon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .title {
+    font-size: 28px;
+    text-align: center;
+  }
+
+  .titleLine {
+    justify-content: center;
+    margin-top: -3px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    text-align: center;
+    max-width: 100%;
+  }
+
+  .infoBox {
+    padding: 14px 16px;
+    max-width: 100%;
+    border-radius: 14px;
+  }
+
+  .infoIconCol {
+    gap: 10px;
+    padding-right: 12px;
+  }
+
+  .infoCircle {
+    width: 36px;
+    height: 36px;
+  }
+
+  .infoIcon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .infoDivider {
+    height: 28px;
+  }
+
+  .infoBox p {
+    font-size: 0.8rem;
+  }
+
+  .ctaButton {
+    width: 100%;
+    justify-content: center;
+    height: 48px;
+    font-size: 0.9rem;
+    padding: 0 20px;
+  }
+
+  .imageWrapper img {
+    max-width: 100%;
+    border-radius: 18px;
+  }
+
+  .imageGlow {
+    width: 220px;
+    height: 220px;
+  }
+
+  .imageDots {
+    justify-content: center;
+  }
+}

@@ -1,0 +1,374 @@
+/* ── Header ── */
+.titleDetails {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 30px 40px;
+}
+
+.backButton {
+    background: none;
+    border: none;
+    color: #348888;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 4px;
+    border-radius: 0;
+    transition: opacity 0.2s;
+}
+
+.backButton:hover {
+    opacity: 0.7;
+}
+
+/* h1 handled by CustomTitle component */
+
+/* ── Main content wrapper ── */
+.detailsMain {
+    background: linear-gradient(135deg, #e6f7f7 0%, #f2fdfd 100%);
+    border: 2px solid rgba(52, 136, 136, 0.22);
+    border-radius: 26px;
+    width: 90%;
+    margin: 0 auto 60px;
+    padding: 40px;
+}
+
+/* ── White card on top of teal ── */
+.detailsContainer {
+    background-color: #fff;
+    border-radius: 20px;
+    padding: 48px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* ── Hero: gallery + intro ── */
+.heroSection {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    margin-bottom: 40px;
+}
+
+.galeria {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.imagemPrincipal {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.imagemPrincipal img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.miniaturas {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.thumb {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 10px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+    border: 3px solid transparent;
+}
+
+.thumb:hover {
+    opacity: 0.85;
+    transform: translateY(-2px);
+}
+
+.thumb.ativa {
+    opacity: 1;
+    border-color: #FA7F08;
+    box-shadow: 0 4px 12px rgba(250, 127, 8, 0.35);
+}
+
+/* ── Coluna da direita: informações em cima e os 3 cards na base (alinhados às miniaturas) ── */
+.colunaDireita {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 32px;
+    min-width: 0;
+}
+
+/* ── Info panel ── */
+.info {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 24px;
+}
+
+.info h2 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: #2d2d2d;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.quickStats {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.statBadge {
+    background-color: #d5f1ef;
+    color: #348888;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.description {
+    color: #555;
+    font-size: 16px;
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* ── Info cards grid ── */
+.detailsCards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 0;
+}
+
+/* dentro da coluna estreita, cards mais compactos */
+.colunaDireita .borderDetails,
+.colunaDireita .borderDetailsCentral {
+    padding: 20px 16px;
+}
+
+.colunaDireita .borderDetails h3,
+.colunaDireita .borderDetailsCentral h3 {
+    font-size: 15px;
+    margin-bottom: 12px;
+}
+
+.colunaDireita .borderDetails p,
+.colunaDireita .borderDetailsCentral p {
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+/* Teal border card */
+.cardDetails {
+    background: linear-gradient(135deg, #348888 0%, #22BABB 100%);
+    border-radius: 20px;
+    padding: 4px;
+    height: 100%;
+}
+
+.borderDetails {
+    background-color: #fff;
+    border-radius: 17px;
+    padding: 28px 24px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.borderDetails h3 {
+    color: #348888;
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0 0 16px 0;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.borderDetails p {
+    color: #2d2d2d;
+    font-size: 15px;
+    line-height: 1.8;
+    margin: 0;
+    flex: 1;
+}
+
+/* Orange border card (prontuário) */
+.cardDetailsCentral {
+    background: linear-gradient(135deg, #FA7F08 0%, #F24405 100%);
+    border-radius: 20px;
+    padding: 4px;
+    height: 100%;
+}
+
+.borderDetailsCentral {
+    background-color: #fff;
+    border-radius: 17px;
+    padding: 28px 24px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.borderDetailsCentral h3 {
+    color: #FA7F08;
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0 0 16px 0;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.borderDetailsCentral p {
+    color: #2d2d2d;
+    font-size: 15px;
+    line-height: 1.8;
+    margin: 0;
+    flex: 1;
+}
+
+/* ── Action buttons (all orange, matching "Ver Mais") ── */
+.cardBotoes {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.cardBotoes button {
+    min-width: 200px;
+    padding: 14px 32px;
+    background-color: #FA7F08;
+    border: none;
+    border-radius: 50px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(250, 127, 8, 0.3);
+}
+
+.cardBotoes button:hover {
+    background-color: #e06e00;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(250, 127, 8, 0.4);
+}
+
+/* Quando não encontrar nenhum animal na page detalhes */
+.btnConhecer {
+    width: 340px;
+    height: 50px;
+    text-align: center;
+    margin: 40px auto;
+    padding: 12px;
+    background-color: #FA7F08;
+    border: none;
+    border-radius: 50px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    display: block;
+}
+
+.btnConhecer:hover {
+    background-color: #e06e00;
+    transform: scale(1.05) rotate(2deg);
+}
+
+
+
+/* ── Responsive ── */
+/* colunas estreitas (3 cards lado a lado): títulos e textos um pouco menores para caberem */
+@media (max-width: 1400px) and (min-width: 1181px) {
+    .colunaDireita .borderDetails,
+    .colunaDireita .borderDetailsCentral {
+        padding: 16px 10px;
+    }
+
+    .colunaDireita .borderDetails h3,
+    .colunaDireita .borderDetailsCentral h3 {
+        font-size: 12px;
+        letter-spacing: 0;
+    }
+
+    .colunaDireita .borderDetails p,
+    .colunaDireita .borderDetailsCentral p {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 1180px) {
+    .detailsCards {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 1024px) {
+    .heroSection {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+
+    .detailsCards {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .detailsMain {
+        width: 95%;
+        padding: 24px;
+        border-radius: 18px;
+    }
+
+    .detailsContainer {
+        padding: 28px 20px;
+    }
+
+    .titleDetails {
+        padding: 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .titleDetails h1 {
+        font-size: 1.5rem;
+    }
+
+    .info h2 {
+        font-size: 1.8rem;
+    }
+
+    .cardBotoes {
+        flex-direction: column;
+    }
+
+    .cardBotoes button {
+        width: 100%;
+    }
+}

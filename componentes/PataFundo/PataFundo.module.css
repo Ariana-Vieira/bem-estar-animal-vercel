@@ -1,0 +1,41 @@
+/* Camada das patinhas: cobre o contêiner (que deve ter position: relative) */
+.trilha {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.pata {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  opacity: 0;
+  background-image: url("/patin.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  animation: pataAnda 2.5s ease forwards;
+  filter: blur(0.8px) brightness(0%);
+}
+
+@keyframes pataAnda {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.5) rotate(-20deg);
+  }
+  20% {
+    opacity: 0.1;
+  }
+  80% {
+    opacity: 0.1;
+    transform: translateY(-20px) scale(1) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px) scale(0.8) rotate(20deg);
+  }
+}
