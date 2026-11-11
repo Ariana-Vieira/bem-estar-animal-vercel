@@ -5,7 +5,7 @@ import { VLibrasWidget } from "@/componentes/VLibrasWidget/VLibrasWidget";
 import { CustomFiltroDaltonismo } from "@/componentes/CustomFiltroDaltonismo/CustomFiltroDaltonismo";
 import { RegistrarVisita } from "@/componentes/RegistrarVisita/RegistrarVisita";
 
-const titulo = "DPBEA Votorantim | Proteção e Bem-Estar Animal";
+const titulo = "Departamento de Proteção e Bem-Estar Animal de Votorantim - DPBEA";
 const descricao =
   "Conheça os serviços do Departamento de Proteção e Bem-Estar Animal de Votorantim! Encontre informações sobre adoção responsável, castração gratuita, vacinação, banco de rações e animais perdidos. Adote. Proteja. Transforme. Juntos por uma Votorantim mais acolhedora!";
 
