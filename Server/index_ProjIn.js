@@ -72,26 +72,53 @@ if (!fs.existsSync(pastaUploads)) {
     fs.mkdirSync(pastaUploads, { recursive: true });
 }
 
-const storage = multer.diskStorage({
-
-    destination: function (req, file, cb) {
-        cb(null, pastaUploads);
-    },
-
-    filename: function (req, file, cb) {
-
-        const extensao = path.extname(file.originalname);
-
-        const nomeArquivo =
-            `${Date.now()}-${Math.round(Math.random() * 1E9)}${extensao}`;
-
-        cb(null, nomeArquivo);
-    }
-});
-
+// O multer agora guarda a foto na MEMÓRIA (não grava direto no disco).
+// Quem decide onde a foto vai ficar é a função salvarFoto, logo abaixo.
 const upload = multer({
-    storage: storage
+    storage: multer.memoryStorage(),
+    // A Vercel aceita no máximo 4,5 MB por requisição; o site reduz a foto antes de enviar.
+    limits: { fileSize: 4 * 1024 * 1024 }
 });
+
+// ====== VERCEL BLOB https://vercel.com/docs/vercel-blob
+//=== npm install @vercel/blob
+// Na Vercel não dá para gravar arquivos na pasta do projeto (ela é só de
+// leitura), então as fotos vão para o Vercel Blob, que devolve uma URL
+// pública (https://...). Essa URL é o que salvamos na tabela FOTO.
+// Se não tiver o token do Blob no .env (rodando no computador), a foto
+// continua indo para a pasta Server/img, como era antes.
+const { put, del } = require("@vercel/blob");
+
+async function salvarFoto(arquivo) {
+    const extensao = path.extname(arquivo.originalname);
+    const nomeArquivo = `${Date.now()}-${Math.round(Math.random() * 1E9)}${extensao}`;
+
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+        const blob = await put(`animais/${nomeArquivo}`, arquivo.buffer, {
+            access: "public",
+            contentType: arquivo.mimetype
+        });
+        return blob.url; // ex: https://xxxx.public.blob.vercel-storage.com/animais/123.jpg
+    }
+
+    fs.writeFileSync(path.join(pastaUploads, nomeArquivo), arquivo.buffer);
+    return `/img/${nomeArquivo}`;
+}
+
+// Só apaga do Blob as fotos que estão lá (URL https://...blob.vercel-storage.com).
+// Fotos do catálogo (/kairi.jpg) e as do disco (/img/...) não são tocadas.
+const ehUrlBlob = (url) => /^https:\/\/[^/]+\.blob\.vercel-storage\.com\//.test(url || "");
+
+async function apagarFotos(urls) {
+    const doBlob = (urls || []).filter(ehUrlBlob);
+    if (!doBlob.length || !process.env.BLOB_READ_WRITE_TOKEN) return;
+    try {
+        await del(doBlob);
+    } catch (e) {
+        // o animal já foi atualizado; no pior caso a foto antiga sobra no Blob
+        console.error("Nao foi possivel apagar do Blob:", e.message);
+    }
+}
 
 
 app.use("/img", express.static(pastaUploads));
@@ -266,7 +293,8 @@ app.post("/INSERT", upload.array("fotos", 3), async (req, res) => {
     console.log("TIPO:");
     console.log(typeof fotoPrincipal);
     console.log("FOTOS RECEBIDAS:");
-    console.log(req.files);
+    // (só os nomes: com memoryStorage o req.files traz o arquivo inteiro)
+    console.log((req.files || []).map(f => f.originalname));
     console.log("=================================");
     const cn = await conectar();
 
@@ -327,8 +355,8 @@ app.post("/INSERT", upload.array("fotos", 3), async (req, res) => {
 
         for (let i = 0; i < req.files.length; i++) {
             const foto = req.files[i];
-            // Caminho que será salvo no banco
-            const caminhoFoto = `/img/${foto.filename}`;
+            // Caminho que será salvo no banco (URL do Blob ou /img/arquivo)
+            const caminhoFoto = await salvarFoto(foto);
             console.log("Foto:", caminhoFoto);
             await cn
                 .request()
@@ -624,20 +652,25 @@ app.put("/animais/:id", upload.array("fotos", 3), async (req, resp) => {
                         faixa_idade = @faixaIdade, sexo = @sexo, status = @status
                     WHERE id_animal = @id`);
 
+        let fotosAntigas = [];
         if (req.files && req.files.length > 0) {
+            fotosAntigas = (await cn.request().input("id", sql.Int, id)
+                .query("SELECT url_foto FROM FOTO WHERE id_animal = @id")).recordset.map(f => f.url_foto);
             await cn.request().input("id", sql.Int, id)
                 .query("DELETE FROM FOTO WHERE id_animal = @id");
 
             for (let i = 0; i < req.files.length; i++) {
+                const caminhoFoto = await salvarFoto(req.files[i]);
                 await cn.request()
                     .input("id_animal", sql.Int, id)
-                    .input("url_foto", sql.VarChar(255), `/img/${req.files[i].filename}`)
+                    .input("url_foto", sql.VarChar(255), caminhoFoto)
                     .input("principal", sql.Bit, i === Number(fotoPrincipal))
                     .query(`INSERT INTO FOTO (id_animal, url_foto, principal, data_cadastro)
                             VALUES (@id_animal, @url_foto, @principal, GETDATE())`);
             }
         }
 
+        await apagarFotos(fotosAntigas); // só depois de tudo gravado
         resp.json({ mensagem: "Animal atualizado com sucesso!" });
     } catch (e) {
         console.error(e);
@@ -655,6 +688,8 @@ app.delete("/animais/:id", async (req, resp) => {
     const tr = new sql.Transaction(cn);
     try {
         await tr.begin();
+        const urlsFotos = (await new sql.Request(tr).input("id", sql.Int, id)
+            .query("SELECT url_foto FROM FOTO WHERE id_animal = @id")).recordset.map(f => f.url_foto);
         await new sql.Request(tr).input("id", sql.Int, id)
             .query("DELETE FROM FOTO WHERE id_animal = @id");
         const r = await new sql.Request(tr).input("id", sql.Int, id)
@@ -664,6 +699,7 @@ app.delete("/animais/:id", async (req, resp) => {
             return resp.status(404).json({ erro: "Animal não encontrado" });
         }
         await tr.commit();
+        await apagarFotos(urlsFotos);
         resp.json({ mensagem: "Animal excluído com sucesso!" });
     } catch (e) {
         try { await tr.rollback(); } catch (_) { }
@@ -954,6 +990,17 @@ app.put('/usuarios/:id', async (req, res) => {
 
 
 
+
+// Erros do envio de foto (ex.: arquivo grande demais) viram uma resposta clara
+app.use((err, req, resp, next) => {
+    if (err && err.code === "LIMIT_FILE_SIZE") {
+        return resp.status(413).json({ erro: "Foto muito grande (máximo 4 MB cada)." });
+    }
+    if (err && err.code === "LIMIT_UNEXPECTED_FILE") {
+        return resp.status(400).json({ erro: "Envie no máximo 3 fotos." });
+    }
+    next(err);
+});
 
 // Local: sobe o servidor normalmente. Na Vercel: exporta o app (ela cuida da porta).
 if (!process.env.VERCEL) {

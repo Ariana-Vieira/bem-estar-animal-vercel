@@ -12,6 +12,7 @@ import { urlFoto } from "@/app/Admin/utils/urlFoto";
 
 // Endereço do servidor (API): na Vercel vem de NEXT_PUBLIC_API_URL
 const API = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3010");
+import { reduzirFoto } from "@/app/Admin/utils/reduzirFoto";
 
 
 //=============================================
@@ -304,11 +305,11 @@ function CadastroAnimaisConteudo() {
               // FOTOS
               // ==========================================
 
-              arquivosFotos.forEach((arquivo) => {
-
-                formData.append("fotos", arquivo);
-
-              });
+              // reduz cada foto antes de enviar (limite de 4,5 MB por requisição na Vercel)
+              for (const arquivo of arquivosFotos) {
+                const reduzida = await reduzirFoto(arquivo);
+                formData.append("fotos", reduzida, reduzida.name);
+              }
 
               //===============================================
 
@@ -396,7 +397,9 @@ function CadastroAnimaisConteudo() {
 
 
                 if (!response.ok) {
-                  throw new Error("Erro ao salvar animal");
+                  // mostra a mensagem do servidor (ex.: foto grande demais), se houver
+                  const erro = await response.json().catch(() => null);
+                  throw new Error(erro?.erro || "Erro ao salvar animal");
                 }
 
                 alert(
@@ -414,7 +417,7 @@ function CadastroAnimaisConteudo() {
                 resetForm();
               } catch (error) {
                 console.error(error);
-                alert("Erro ao salvar animal.");
+                alert(error instanceof Error ? error.message : "Erro ao salvar animal.");
               }
             }}
         >

@@ -232,7 +232,7 @@ Botões de excluir/recusar ficam vermelhos de propósito (ação destrutiva).
 - **Cadastro de animais** (`/Admin/cadastro-animais`) e **de vacinas** (`/Admin/cadastro-vacinas`): formulários com
   **Formik + Yup** (validação). Ao enviar, o site manda os dados para o servidor Express (`http://localhost:3010`).
 - **Servidor** (`Server/index_ProjIn.js`): rotas principais:
-  - `POST /INSERT`: grava o animal na tabela `ANIMAL` e as fotos na tabela `FOTO` (upload com `multer`, arquivos em `Server/img`).
+  - `POST /INSERT`: grava o animal na tabela `ANIMAL` e as fotos na tabela `FOTO` (upload com `multer` + função `salvarFoto`: com `BLOB_READ_WRITE_TOKEN` no `.env` a foto vai para o Vercel Blob e o banco guarda a URL `https://...`; sem o token, vai para `Server/img` e o banco guarda `/img/arquivo`).
   - `POST /addvacina`: grava fabricante, fornecedor, entrada de estoque, vacina e lote.
   - `GET /animais`, `GET /vacinas`: listam o que está no banco.
 - **Conexão com o banco:** `Server/database.js` lê as credenciais do arquivo `Server/.env` (nunca publique esse arquivo).
@@ -377,7 +377,24 @@ O Bootstrap está nos layouts e no carrossel; o CSS Modules, nos componentes (cl
 O Tailwind está instalado e importado em `app/globals.css`, mas quase não é usado (resto da instalação padrão do Next).
 
 **10. Como as fotos são salvas?**
-Upload com `multer`: o arquivo vai para `Server/img` e o caminho é gravado na tabela `FOTO`.
+O `multer` recebe o arquivo na memória e a função `salvarFoto` decide onde ele fica:
+- **Na Vercel (com `BLOB_READ_WRITE_TOKEN`)**: vai para o **Vercel Blob**, que devolve uma URL pública (`https://...`). Não dá
+  para gravar na pasta `public/` nem em `Server/img` na Vercel, porque lá o sistema de arquivos é só de leitura e a `public/`
+  é montada no build.
+- **No computador (sem o token)**: vai para `Server/img`, como antes, e o caminho fica `/img/arquivo.jpg`.
+
+Nos dois casos o endereço é gravado na tabela `FOTO`, e o front monta o link com `urlFoto()` (URL `https://` passa direto).
+
+Cuidados com o Blob:
+- **Limpeza:** ao **trocar** as fotos de um animal (edição) ou **excluí-lo**, o servidor apaga do Blob as fotos antigas
+  (função `apagarFotos`, só para URLs do Blob; fotos do catálogo em `public/` e do disco não são tocadas). A exclusão do
+  Blob só acontece **depois** de o banco ter gravado, então um erro no meio não faz o animal ficar sem foto.
+- **Limite de tamanho:** a Vercel aceita no máximo **4,5 MB por requisição**. Por isso o formulário reduz cada foto no
+  navegador antes de enviar (`app/Admin/utils/reduzirFoto.ts`: lado maior de 1280 px, JPEG, em geral < 500 KB) e o
+  servidor recusa foto acima de 4 MB com a mensagem "Foto muito grande".
+- **Como ativar na Vercel:** em *Storage* criar um **Blob Store** (acesso público) e conectar ao projeto do **servidor**;
+  isso cria a variável `BLOB_READ_WRITE_TOKEN`. Depois, fazer um novo deploy. Sem ela, a foto cai numa pasta temporária.
+- **Dependência:** `@vercel/blob` (em `Server/package.json`). O `.env` local não precisa do token.
 
 **11. Como validam os formulários?**
 Formik + Yup, nos cadastros de animais e vacinas.
@@ -423,11 +440,11 @@ O que mudou em relação ao original:
 - **Suspense**: `cadastro-animais` e `cadastro-vacinas` foram envolvidas em `<Suspense>`, exigência do Next no build de produção por causa do `useSearchParams`.
 - **next.config.ts**: `ignoreBuildErrors: true`, porque o código tem um erro antigo de tipo do TypeScript (`vacina.id`) que travaria o deploy.
 - **app/(private)** foi removida da cópia: eram páginas antigas que importavam componentes que não existem mais e impediam o build.
-- **Server/**: (1) o `msnodesqlv8` saiu do package.json (driver só de Windows, quebra na Vercel); (2) o servidor exporta o `app` em vez de só dar `listen` quando roda na Vercel; (3) novos uploads de foto vão para uma pasta temporária; (4) novo `Server/vercel.json`.
+- **Server/**: (1) o `msnodesqlv8` saiu do package.json (driver só de Windows, quebra na Vercel); (2) o servidor exporta o `app` em vez de só dar `listen` quando roda na Vercel; (3) novos uploads de foto vão para o Vercel Blob (ou, sem token, para uma pasta temporária); (4) novo `Server/vercel.json`.
 
 Limitações conhecidas na Vercel:
 
-- Fotos **novas** enviadas pelo site não ficam salvas de forma permanente (o disco da Vercel é temporário). As fotos que já estavam em `Server/img` funcionam normalmente.
+- Fotos **novas** enviadas pelo site vão para o **Vercel Blob**: o projeto do **servidor** na Vercel precisa ter a variável `BLOB_READ_WRITE_TOKEN` (ao criar o Blob Store e conectar ao projeto, ela é criada sozinha). Sem ela, a foto cai numa pasta temporária e se perde. As fotos que já estavam em `Server/img` funcionam normalmente.
 - As rotas `app/Admin/api/*` que **escrevem** nos arquivos `.json` não salvam na Vercel (só leitura). A leitura funciona.
 - O banco (Azure SQL) precisa liberar o acesso de IPs externos no firewall.
-- **Sincronizado com o projeto principal:** UPDATE/DELETE de animais e vacinas, acentuação, faixa de idade, leitura de fotos por pasta (`app/Admin/utils/urlFoto.ts`) e os scripts do banco em `estruturabanco/`.
+- **Sincronizado com o projeto principal:** UPDATE/DELETE de animais e vacinas, acentuação, faixa de idade, fotos no Vercel Blob (com redução da foto no navegador), leitura de fotos por pasta (`app/Admin/utils/urlFoto.ts`) e os scripts do banco em `estruturabanco/`.

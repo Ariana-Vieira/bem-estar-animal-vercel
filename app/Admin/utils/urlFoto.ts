@@ -1,7 +1,8 @@
 // Endereço completo de uma foto de animal, conforme a pasta onde ela está:
 //  - "/img/arquivo.jpg"  -> foto enviada pelo Admin, fica no SERVIDOR (API)
 //  - "/kairi.jpg" etc.   -> foto do catálogo, fica na pasta public/ do SITE
-// Endereços completos (http, data:, blob:) passam direto.
+// Endereços completos (http, data:, blob:) passam direto - é o caso das
+// fotos salvas no Vercel Blob (https://...blob.vercel-storage.com/...).
 export function urlFoto(caminho?: string | null): string {
   if (!caminho) return "";
   if (/^(https?:|data:|blob:)/.test(caminho)) return caminho;
