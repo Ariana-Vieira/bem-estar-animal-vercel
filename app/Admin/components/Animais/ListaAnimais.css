@@ -262,6 +262,28 @@
   background-color: #267171;
 }
 
+/* Botão Excluir (tabela e modal) */
+.acoes .excluir-btn,
+.modal-actions .excluir-btn {
+  border: none;
+  background-color: #FA7F08;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.acoes .excluir-btn {
+  padding: 10px 14px;
+  border-radius: 10px;
+}
+
+.acoes .excluir-btn:hover,
+.modal-actions .excluir-btn:hover {
+  background-color: #F24405;
+}
+
 .sem-registros {
   text-align: center;
   color: #666;

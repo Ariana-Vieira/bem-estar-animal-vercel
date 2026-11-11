@@ -44,6 +44,13 @@ export interface Animal {
     data: string;
   };
 
+  // campos que vêm direto do banco (SQL Server)
+  id_animal?: number;
+  url_foto?: string;
+  especie?: string;
+  faixa_idade?: string;
+  idade_detalhada?: string;
+
   criadoEm: string;
   atualizadoEm?: string;
 }

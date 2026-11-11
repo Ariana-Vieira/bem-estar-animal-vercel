@@ -25,6 +25,39 @@ import {
 import { Vacina }
   from "@/app/Admin/types/vacina";
 
+
+// O banco guarda códigos SEM acento (cao, Antirrabica, geladeira1...) para
+// facilitar filtros e comparações. Na tela mostramos o texto com acento.
+function textoTipoVacina(tipo: string) {
+  return tipo === "Antirrabica" ? "Antirrábica" : tipo;
+}
+
+function textoEspecie(especie: string) {
+  switch (especie) {
+    case "cao":
+      return "Cão";
+    case "gato":
+      return "Gato";
+    case "ambos":
+      return "Ambos";
+    default:
+      return especie;
+  }
+}
+
+function textoLocal(local: string) {
+  switch (local) {
+    case "geladeira1":
+      return "Geladeira 1";
+    case "freezer":
+      return "Freezer";
+    case "sala":
+      return "Sala Veterinária";
+    default:
+      return local;
+  }
+}
+
 export default function ListaVacinas() {
 
   const router = useRouter();
@@ -171,9 +204,10 @@ export default function ListaVacinas() {
 
     try {
 
+      // DELETE /vacinas/:id no servidor Express
       const response =
         await fetch(
-          `/Admin/api/vacinas?id=${id}`,
+          `${url}/vacinas/${id}`,
           {
             method: "DELETE",
           }
@@ -181,11 +215,20 @@ export default function ListaVacinas() {
 
       if (!response.ok) {
 
-        throw new Error(
-          "Erro ao excluir"
+        const erro =
+          await response.json().catch(() => null);
+
+        alert(
+          erro?.erro || "Erro ao excluir vacina"
         );
 
+        return;
+
       }
+
+      setQtdVacina(
+        (q) => Math.max(0, q - 1)
+      );
 
       setVacinas(
         vacinas.filter(
@@ -420,7 +463,7 @@ async function exibaVacina(url: string) {
             V10
           </option>
 
-          <option value="Antirrábica">
+          <option value="Antirrabica">
             Antirrábica
           </option>
 
@@ -449,15 +492,15 @@ async function exibaVacina(url: string) {
             Todas as espécies
           </option>
 
-          <option value="Cão">
+          <option value="cao">
             Cão
           </option>
 
-          <option value="Gato">
+          <option value="gato">
             Gato
           </option>
 
-          <option value="Ambos">
+          <option value="ambos">
             Ambos
           </option>
 
@@ -515,9 +558,9 @@ async function exibaVacina(url: string) {
 
                 <td>{vacina.nome}</td>
 
-                <td>{vacina.tipo}</td>
+                <td>{textoTipoVacina(vacina.tipo)}</td>
 
-                <td>{vacina.especie}</td>
+                <td>{textoEspecie(vacina.especie)}</td>
 
                 <td>{vacina.fabricante}</td>
 
@@ -607,13 +650,13 @@ async function exibaVacina(url: string) {
               <p>
                 <strong>Tipo:</strong>
                 {" "}
-                {vacinaSelecionada.tipo}
+                {textoTipoVacina(vacinaSelecionada.tipo)}
               </p>
 
               <p>
                 <strong>Espécie:</strong>
                 {" "}
-                {vacinaSelecionada.especie}
+                {textoEspecie(vacinaSelecionada.especie)}
               </p>
 
               <p>
@@ -697,7 +740,7 @@ async function exibaVacina(url: string) {
 
               <p>
                 <strong>Armazenamento:</strong>{" "}
-                {vacinaSelecionada.localArmazenamento}
+                {textoLocal(vacinaSelecionada.localArmazenamento)}
               </p>
 
             </div>

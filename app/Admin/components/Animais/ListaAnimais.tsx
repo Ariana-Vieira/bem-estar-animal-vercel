@@ -5,6 +5,7 @@ import "./ListaAnimais.css";
 import Titulo from "@/app/Admin/components/UI/Titulo/Titulo";
 import { Animal } from "@/app/Admin/types/animal";
 import { useRouter } from "next/navigation";
+import { urlFoto } from "@/app/Admin/utils/urlFoto";
 import { useEffect, useState } from "react";
 
 
@@ -50,8 +51,20 @@ export default function ListaAnimais() {
       const url: string = servidor + "/animais";
       await fetch(url)
         .then((resp) => { return resp.json() })
-        .then((dado) => { setAnimais(dado); })
-         
+        .then((dado) => {
+          // O banco devolve só os dados básicos + a foto principal.
+          // Completa o que a tela espera (fotos, prontuário, adestramento).
+          const lista = (Array.isArray(dado) ? dado : []).map((a: any) => ({
+            ...a,
+            sexo: String(a.sexo).toLowerCase() === "m" ? "macho" : String(a.sexo).toLowerCase() === "f" ? "femea" : a.sexo,
+            fotos: a.url_foto ? [urlFoto(a.url_foto)] : [],
+            fotoPrincipal: a.url_foto ? urlFoto(a.url_foto) : "",
+            prontuario: a.prontuario ?? { castrado: false, vermifugado: false, vacinado: false, vacinas: [], observacoes: "" },
+            adestramento: a.adestramento ?? { comandos: [], observacoes: "" },
+          }));
+          setAnimais(lista);
+        })
+
 
     } catch (error) {
 
@@ -235,6 +248,33 @@ export default function ListaAnimais() {
     }
   }
 
+  // EXCLUIR: chama DELETE /animais/:id no servidor Express
+  async function excluirAnimal(animal: Animal) {
+    if (!window.confirm(`Deseja realmente excluir o animal "${animal.nome}"?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${servidor}/animais/${animal.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const erro = await response.json().catch(() => null);
+        alert(erro?.erro || "Erro ao excluir animal.");
+        return;
+      }
+
+      setAnimais((atual) => atual.filter((a) => a.id !== animal.id));
+      setQtd((q) => Math.max(0, q - 1));
+      setAnimalSelecionado(null);
+      alert("Animal excluído com sucesso!");
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao excluir animal.");
+    }
+  }
+
   function editarAnimal(animal: Animal) {
     if (animal.status === "falecido") {
       alert(
@@ -398,7 +438,7 @@ export default function ListaAnimais() {
                     {animal.url_foto ? (                     
                       
                       <img
-                        src={servidor+animal.url_foto}
+                        src={urlFoto(animal.url_foto)}
                         alt={animal.nome}
                         className="animal-foto"
                       />
@@ -416,7 +456,7 @@ export default function ListaAnimais() {
                 </td>
 
                 <td>{animal.rg}</td>
-                <td>{getTipoTexto(animal.especie)}</td>
+                <td>{getTipoTexto(animal.tipo)}</td>
                 <td>{getPorteTexto(animal.porte)}</td>
                 <td>{animal.raca}</td>
                 <td>{getSexoTexto(animal.sexo)}</td>
@@ -452,6 +492,15 @@ export default function ListaAnimais() {
                       }
                     >
                       Editar
+                    </button>
+
+                    <button
+                      className="excluir-btn"
+                      onClick={() =>
+                        excluirAnimal(animal)
+                      }
+                    >
+                      Excluir
                     </button>
                   </div>
                 </td>
@@ -526,7 +575,7 @@ export default function ListaAnimais() {
               </p>
               <p>
                 <strong>Idade:</strong>{" "}
-                {animalSelecionado.idade}
+                {animalSelecionado.idade_detalhada || animalSelecionado.faixa_idade || animalSelecionado.idade}
               </p>
               <p>
                 <strong>Sexo:</strong>{" "}
@@ -637,6 +686,15 @@ export default function ListaAnimais() {
                     Editar Animal
                   </button>
                 )}
+
+              <button
+                className="excluir-btn"
+                onClick={() =>
+                  excluirAnimal(animalSelecionado)
+                }
+              >
+                Excluir Animal
+              </button>
 
               <button
                 className="fechar-modal"

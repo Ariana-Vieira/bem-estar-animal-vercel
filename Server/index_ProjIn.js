@@ -41,6 +41,19 @@ const path = require("path");
 const fs = require("fs");
 
 const { sql, conectar } = require('./database.js');
+
+// A idade pode vir como faixa ("06 meses a 07 anos") ou texto livre ("2 anos").
+// A coluna ANIMAL.idade (numerica no banco local) guarda so os ANOS inteiros,
+// quando for possivel descobrir; o texto original vai em idade_detalhada e a
+// faixa em faixa_idade.
+function idadeEmAnos(texto) {
+    const t = String(texto || "");
+    let m = /(\d+)\s*ano/i.exec(t);
+    if (m) return Number(m[1]);
+    if (/^\s*\d+\s*$/.test(t)) return Number(t);
+    if (/(\d+)\s*mes/i.test(t)) return 0;
+    return null;
+}
 // const { MAX } = require('mssql');
 // const { decapsulate } = require('crypto');
 
@@ -120,6 +133,8 @@ app.get('/vacinas', async (req, resp) => {
         const cn = await conectar();
         const querySql = `SELECT
                                 vacina.id_vacina,
+                                vacina.id_vacina AS id,
+                                lote.id_lote_vacina,
                                 vacina.nome,
                                 vacina.descricao,
                                 vacina.especie,
@@ -188,12 +203,16 @@ app.get("/animais", async (req, resp) => {
         const cn = await conectar();
         const querySql = `SELECT 
                                     animal.id_animal, 
+                                    animal.id_animal AS id,
+                                    animal.especie AS tipo,
                                     animal.nome, 
                                     animal.rg, 
                                     animal.especie, 
                                     animal.porte,  
                                     animal.raca, 
-                                    animal.idade,  
+                                    animal.idade,
+                                    animal.faixa_idade,
+                                    animal.idade_detalhada,  
                                     animal.sexo,
                                     animal.status,  
                                     foto.url_foto,
@@ -232,6 +251,7 @@ app.post("/INSERT", upload.array("fotos", 3), async (req, res) => {
         porte,
         raca,
         idade,
+        faixaIdade,
         sexo,
         status,
         fotos,
@@ -260,8 +280,10 @@ app.post("/INSERT", upload.array("fotos", 3), async (req, res) => {
         .input('tipo', sql.VarChar(100), tipo)
         .input('porte', sql.VarChar(100), porte)
         .input('raca', sql.VarChar(100), raca)
-        .input('idade', sql.VarChar(100), idade)
-        .input('sexo', sql.Char(1), sexo)
+        .input('idade', sql.Int, idadeEmAnos(idade))
+        .input('idadeDetalhada', sql.NVarChar(50), idade ? String(idade).slice(0, 50) : null)
+        .input('faixaIdade', sql.NVarChar(40), faixaIdade || null)
+        .input('sexo', sql.Char(1), (sexo ? String(sexo).charAt(0).toUpperCase() : null))
         .input('status', sql.VarChar(100), status)
         .query(`
                 INSERT INTO ANIMAL
@@ -272,6 +294,8 @@ app.post("/INSERT", upload.array("fotos", 3), async (req, res) => {
                 porte,
                 raca,
                 idade,
+                idade_detalhada,
+                faixa_idade,
                 sexo,
                 status
             )
@@ -284,6 +308,8 @@ app.post("/INSERT", upload.array("fotos", 3), async (req, res) => {
                     @porte,
                     @raca,
                     @idade,
+                    @idadeDetalhada,
+                    @faixaIdade,
                     @sexo,
                     @status
                 )
@@ -534,6 +560,261 @@ app.post("/addvacina", async (req, resp) => {
 
 
 
+
+//========== ANIMAL: BUSCAR UM (para preencher o formulário de edição) ===
+app.get("/animais/:id", async (req, resp) => {
+    try {
+        const id = parseInt(req.params.id);
+        const cn = await conectar();
+
+        const animal = await cn.request()
+            .input("id", sql.Int, id)
+            .query(`SELECT id_animal AS id, nome, rg, especie AS tipo, porte,
+                           raca, idade, idade_detalhada, faixa_idade, sexo, status
+                    FROM ANIMAL WHERE id_animal = @id`);
+
+        if (animal.recordset.length === 0) {
+            return resp.status(404).json({ erro: "Animal não encontrado" });
+        }
+
+        const fotos = await cn.request()
+            .input("id", sql.Int, id)
+            .query(`SELECT url_foto, principal FROM FOTO
+                    WHERE id_animal = @id ORDER BY id_foto`);
+
+        resp.json({ ...animal.recordset[0], fotos: fotos.recordset });
+    } catch (e) {
+        resp.status(500).json({ erro: e.message });
+    }
+});
+
+//========== ANIMAL: ALTERAR (UPDATE) ====================================
+// Mesmo formulário do cadastro (FormData + multer). Se vierem fotos novas,
+// elas SUBSTITUEM as antigas; se não vier nenhuma, as fotos continuam.
+app.put("/animais/:id", upload.array("fotos", 3), async (req, resp) => {
+    try {
+        const id = parseInt(req.params.id);
+        const { nome, rg, tipo, porte, raca, idade, faixaIdade, sexo, status, fotoPrincipal } = req.body;
+        const cn = await conectar();
+
+        const atual = await cn.request().input("id", sql.Int, id)
+            .query("SELECT status FROM ANIMAL WHERE id_animal = @id");
+        if (atual.recordset.length === 0) {
+            return resp.status(404).json({ erro: "Animal não encontrado" });
+        }
+        if (atual.recordset[0].status === "falecido") {
+            return resp.status(403).json({ erro: "Animal falecido não pode ser alterado" });
+        }
+
+        await cn.request()
+            .input("id", sql.Int, id)
+            .input("nome", sql.NVarChar(100), nome)
+            .input("rg", sql.NVarChar(100), rg)
+            .input("tipo", sql.NVarChar(100), tipo)
+            .input("porte", sql.NVarChar(100), porte)
+            .input("raca", sql.NVarChar(100), raca)
+            .input("idade", sql.Int, idadeEmAnos(idade))
+            .input("idadeDetalhada", sql.NVarChar(50), idade ? String(idade).slice(0, 50) : null)
+            .input("faixaIdade", sql.NVarChar(40), faixaIdade || null)
+            .input("sexo", sql.Char(1), (sexo ? String(sexo).charAt(0).toUpperCase() : null))
+            .input("status", sql.NVarChar(100), status)
+            .query(`UPDATE ANIMAL
+                    SET nome = @nome, rg = @rg, especie = @tipo, porte = @porte,
+                        raca = @raca, idade = @idade, idade_detalhada = @idadeDetalhada,
+                        faixa_idade = @faixaIdade, sexo = @sexo, status = @status
+                    WHERE id_animal = @id`);
+
+        if (req.files && req.files.length > 0) {
+            await cn.request().input("id", sql.Int, id)
+                .query("DELETE FROM FOTO WHERE id_animal = @id");
+
+            for (let i = 0; i < req.files.length; i++) {
+                await cn.request()
+                    .input("id_animal", sql.Int, id)
+                    .input("url_foto", sql.VarChar(255), `/img/${req.files[i].filename}`)
+                    .input("principal", sql.Bit, i === Number(fotoPrincipal))
+                    .query(`INSERT INTO FOTO (id_animal, url_foto, principal, data_cadastro)
+                            VALUES (@id_animal, @url_foto, @principal, GETDATE())`);
+            }
+        }
+
+        resp.json({ mensagem: "Animal atualizado com sucesso!" });
+    } catch (e) {
+        console.error(e);
+        resp.status(500).json({ erro: e.message });
+    }
+});
+
+//========== ANIMAL: EXCLUIR (DELETE) ====================================
+// A FOTO depende do animal, então apaga primeiro as fotos e depois o animal.
+// Se o animal já tem prontuário/adoção/etc., o banco recusa (erro 547) e
+// devolvemos 409 explicando.
+app.delete("/animais/:id", async (req, resp) => {
+    const id = parseInt(req.params.id);
+    const cn = await conectar();
+    const tr = new sql.Transaction(cn);
+    try {
+        await tr.begin();
+        await new sql.Request(tr).input("id", sql.Int, id)
+            .query("DELETE FROM FOTO WHERE id_animal = @id");
+        const r = await new sql.Request(tr).input("id", sql.Int, id)
+            .query("DELETE FROM ANIMAL OUTPUT DELETED.id_animal WHERE id_animal = @id");
+        if (r.recordset.length === 0) {
+            await tr.rollback();
+            return resp.status(404).json({ erro: "Animal não encontrado" });
+        }
+        await tr.commit();
+        resp.json({ mensagem: "Animal excluído com sucesso!" });
+    } catch (e) {
+        try { await tr.rollback(); } catch (_) { }
+        if (e.number === 547) {
+            return resp.status(409).json({ erro: "Este animal possui prontuário, adoção ou outros registros vinculados e não pode ser excluído." });
+        }
+        console.error(e);
+        resp.status(500).json({ erro: e.message });
+    }
+});
+
+//========== VACINA: ALTERAR (UPDATE) ====================================
+// Altera o cabeçalho (VACINA) e o lote mais recente (LOTE_VACINA), que é o
+// mesmo lote que a lista mostra.
+async function achaOuCria(cn, tabela, colunaId, nome) {
+    if (!nome || String(nome).trim() === "") return null;
+    const achou = await cn.request().input("nome", sql.NVarChar(100), nome)
+        .query(`SELECT ${colunaId} AS id FROM ${tabela} WHERE nome = @nome`);
+    if (achou.recordset.length > 0) return achou.recordset[0].id;
+    const criou = await cn.request().input("nome", sql.NVarChar(100), nome)
+        .query(`INSERT INTO ${tabela} (nome) OUTPUT INSERTED.${colunaId} AS id VALUES (@nome)`);
+    return criou.recordset[0].id;
+}
+
+app.put("/vacinas/:id", async (req, resp) => {
+    try {
+        const id = parseInt(req.params.id);
+        const {
+            nome, descricao, especie, tipo, fabricante, lote, dataFabricacao,
+            dataValidade, quantidadeRecebida, dataEntrada, responsavel,
+            fornecedor, notaFiscal, valorUnitario, valorTotal, temperatura,
+            localArmazenamento
+        } = req.body;
+
+        const cn = await conectar();
+
+        const lt = await cn.request().input("id", sql.Int, id)
+            .query(`SELECT TOP 1 id_lote_vacina, id_entrada FROM LOTE_VACINA
+                    WHERE id_vacina = @id ORDER BY id_lote_vacina DESC`);
+        if (lt.recordset.length === 0) {
+            return resp.status(404).json({ erro: "Vacina não encontrada" });
+        }
+        const { id_lote_vacina } = lt.recordset[0];
+        let id_entrada = lt.recordset[0].id_entrada;
+
+        const id_fabricante = await achaOuCria(cn, "FABRICANTE", "id_fabricante", fabricante);
+        const id_fornecedor = await achaOuCria(cn, "FORNECEDOR", "id_fornecedor", fornecedor);
+
+        // ENTRADA_ESTOQUE: atualiza se já existe, cria se ainda não existia
+        if (id_fornecedor && dataEntrada) {
+            const req2 = cn.request()
+                .input("id_entrada", sql.Int, id_entrada)
+                .input("id_fornecedor", sql.Int, id_fornecedor)
+                .input("dataEntrada", sql.Date, dataEntrada)
+                .input("notaFiscal", sql.VarChar(50), notaFiscal || null)
+                .input("valorTotal", sql.Decimal(10, 2), Number(valorTotal) || 0);
+            if (id_entrada) {
+                await req2.query(`UPDATE ENTRADA_ESTOQUE
+                    SET id_fornecedor = @id_fornecedor, data_entrada = @dataEntrada,
+                        nota_fiscal = @notaFiscal, valor_total = @valorTotal
+                    WHERE id_entrada = @id_entrada`);
+            } else {
+                const nova = await req2.query(`INSERT INTO ENTRADA_ESTOQUE
+                    (id_fornecedor, data_entrada, nota_fiscal, valor_total)
+                    OUTPUT INSERTED.id_entrada
+                    VALUES (@id_fornecedor, @dataEntrada, @notaFiscal, @valorTotal)`);
+                id_entrada = nova.recordset[0].id_entrada;
+            }
+        }
+
+        await cn.request()
+            .input("id", sql.Int, id)
+            .input("nome", sql.NVarChar(100), nome)
+            .input("descricao", sql.NVarChar(250), descricao)
+            .input("especie", sql.NVarChar(100), especie)
+            .input("tipo", sql.NVarChar(100), tipo)
+            .query(`UPDATE VACINA SET nome = @nome, descricao = @descricao,
+                           especie = @especie, tipo = @tipo
+                    WHERE id_vacina = @id`);
+
+        // Ao mudar a quantidade recebida, a disponível acompanha a diferença
+        // (o que já foi aplicado continua descontado).
+        await cn.request()
+            .input("id_lote", sql.Int, id_lote_vacina)
+            .input("id_fabricante", sql.Int, id_fabricante)
+            .input("id_entrada", sql.Int, id_entrada)
+            .input("lote", sql.VarChar(30), lote)
+            .input("dataFabricacao", sql.Date, dataFabricacao)
+            .input("dataValidade", sql.Date, dataValidade)
+            .input("quantidade", sql.Int, quantidadeRecebida)
+            .input("valorUnitario", sql.Decimal(10, 2), valorUnitario ? Number(valorUnitario) : null)
+            .input("responsavel", sql.NVarChar(100), responsavel || null)
+            .input("temperatura", sql.NVarChar(50), temperatura || null)
+            .input("localArmazenamento", sql.NVarChar(100), localArmazenamento || null)
+            .query(`UPDATE LOTE_VACINA SET
+                        id_fabricante = @id_fabricante,
+                        id_entrada = @id_entrada,
+                        numero_lote = @lote,
+                        data_fabricacao = @dataFabricacao,
+                        data_validade = @dataValidade,
+                        quantidade_disponivel = CASE WHEN quantidade_disponivel + (@quantidade - quantidade_total) < 0
+                                                     THEN 0
+                                                     ELSE quantidade_disponivel + (@quantidade - quantidade_total) END,
+                        quantidade_total = @quantidade,
+                        valor_unitario = @valorUnitario,
+                        responsavel = @responsavel,
+                        temperatura = @temperatura,
+                        local_armazenamento = @localArmazenamento
+                    WHERE id_lote_vacina = @id_lote`);
+
+        resp.json({ mensagem: "Vacina atualizada com sucesso!" });
+    } catch (e) {
+        console.error(e);
+        // 2627/2601 = nome de vacina repetido (VACINA.nome é UNIQUE)
+        if (e.number === 2627 || e.number === 2601) {
+            return resp.status(409).json({ erro: "Já existe outra vacina com esse nome." });
+        }
+        resp.status(500).json({ erro: e.message });
+    }
+});
+
+//========== VACINA: EXCLUIR (DELETE) ====================================
+// Apaga os lotes da vacina e depois a vacina. Se algum lote já foi usado em
+// uma vacinação (VACINA_APLICADA), o banco recusa e devolvemos 409.
+app.delete("/vacinas/:id", async (req, resp) => {
+    const id = parseInt(req.params.id);
+    const cn = await conectar();
+    const tr = new sql.Transaction(cn);
+    try {
+        await tr.begin();
+        await new sql.Request(tr).input("id", sql.Int, id)
+            .query("DELETE FROM LOTE_VACINA WHERE id_vacina = @id");
+        const r = await new sql.Request(tr).input("id", sql.Int, id)
+            .query("DELETE FROM VACINA OUTPUT DELETED.id_vacina WHERE id_vacina = @id");
+        if (r.recordset.length === 0) {
+            await tr.rollback();
+            return resp.status(404).json({ erro: "Vacina não encontrada" });
+        }
+        await tr.commit();
+        resp.json({ mensagem: "Vacina excluída com sucesso!" });
+    } catch (e) {
+        try { await tr.rollback(); } catch (_) { }
+        if (e.number === 547) {
+            return resp.status(409).json({ erro: "Esta vacina já foi aplicada em animais e não pode ser excluída." });
+        }
+        console.error(e);
+        resp.status(500).json({ erro: e.message });
+    }
+});
+
+
 // DELETE
 app.delete('/usuarios/:id', async (req, res) => {
 
@@ -681,4 +962,4 @@ if (!process.env.VERCEL) {
     });
 }
 
-module.exports = app;
+module.exports = app; 

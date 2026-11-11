@@ -73,16 +73,7 @@ const vacinaSchema = Yup.object({
     .required("Informe se necessita de refrigeração"),
 })
 
-// Suspense: exigido pelo Next em producao quando se usa useSearchParams
-export default function CadastroVacinaPage() {
-  return (
-    <Suspense fallback={null}>
-      <CadastroVacinaConteudo />
-    </Suspense>
-  );
-}
-
-function CadastroVacinaConteudo() {
+function CadastroVacinaPageConteudo() {
 
   const router = useRouter();
 
@@ -136,8 +127,10 @@ function CadastroVacinaConteudo() {
 
       try {
 
+        // Busca a lista no servidor Express (SQL Server) e pega a vacina
+        // que está sendo editada.
         const response =
-          await fetch("/Admin/api/vacinas");
+          await fetch(`${url}/vacinas`);
 
         const vacinas =
           await response.json();
@@ -152,6 +145,11 @@ function CadastroVacinaConteudo() {
           return;
         }
 
+        // O banco devolve datas como "2026-01-10T00:00:00.000Z";
+        // o campo de data do formulário só aceita "2026-01-10".
+        const soData = (d: any) =>
+          d ? String(d).slice(0, 10) : "";
+
         setDadosIniciais({
           nomeVacina: vacina.nome || "",
           tipoVacina: vacina.tipo || "",
@@ -160,13 +158,13 @@ function CadastroVacinaConteudo() {
           descricao: vacina.descricao || "",
           numeroLote: vacina.lote || "",
           dataFabricacao:
-            vacina.dataFabricacao || "",
+            soData(vacina.dataFabricacao),
           dataValidade:
-            vacina.validade || "",
+            soData(vacina.validade),
           quantidadeRecebida:
-            vacina.quantidade || "",
+            vacina.quantidade ?? "",
           dataEntrada:
-            vacina.dataEntrada || "",
+            soData(vacina.dataEntrada),
           responsavel:
             vacina.responsavel || "",
           fornecedor:
@@ -278,7 +276,7 @@ function CadastroVacinaConteudo() {
                 // modoEdicao. "/addvacina" já existe e funciona no servidor
                 // (Server/index_ProjIn.js). 
 
-                const caminho = modoEdicao ? url + "/UPDATE" : url + "/addvacina";
+                const caminho = modoEdicao ? `${url}/vacinas/${vacinaId}` : url + "/addvacina";
 
 
                 const response = await fetch(caminho, {
@@ -688,5 +686,14 @@ function CadastroVacinaConteudo() {
 
       </section>
     </Layout >
+  );
+}
+
+// Suspense: exigido pelo Next em producao quando se usa useSearchParams
+export default function CadastroVacinaPage() {
+  return (
+    <Suspense fallback={null}>
+      <CadastroVacinaPageConteudo />
+    </Suspense>
   );
 }

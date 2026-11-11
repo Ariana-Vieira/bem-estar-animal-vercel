@@ -8,6 +8,10 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import type { Vacina } from "@/app/Admin/types/vacina";
+import { urlFoto } from "@/app/Admin/utils/urlFoto";
+
+// Endereço do servidor (API): na Vercel vem de NEXT_PUBLIC_API_URL
+const API = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3010");
 
 
 //=============================================
@@ -97,7 +101,10 @@ const animalSchema = Yup.object({
 
   raca: Yup.string().required("Informe a raça do animal"),
 
-  idade: Yup.string().required("Informe a idade real ou aproximada"),
+  faixaIdade: Yup.string().required("Informe a faixa de idade"),
+
+  // idade exata (opcional): "3 anos", "aproximadamente 6 meses"...
+  idade: Yup.string(),
 
   sexo: Yup.string().required("Informe o sexo do animal"),
 
@@ -123,6 +130,7 @@ const valoresIniciais = {
   tipo: "",
   porte: "",
   raca: "",
+  faixaIdade: "",
   idade: "",
   sexo: "",
   status: "indisponivel",
@@ -144,15 +152,6 @@ const valoresIniciais = {
   causaFalecimento: "",
   dataFalecimento: "",
 };
-
-// Suspense: exigido pelo Next em producao quando se usa useSearchParams
-export default function CadastroAnimais() {
-  return (
-    <Suspense fallback={null}>
-      <CadastroAnimaisConteudo />
-    </Suspense>
-  );
-}
 
 function CadastroAnimaisConteudo() {
 
@@ -197,18 +196,26 @@ function CadastroAnimaisConteudo() {
     //=========================================
     async function carregarAnimal() {
       try {
-        const response = await fetch("/Admin/api/animais");
-        const animais = await response.json();
+        // Busca o animal no servidor Express (SQL Server)
+        const response = await fetch(`${API}/animais/${animalId}`);
 
-        const animal = animais.find(
-          (item: any) => item.id === Number(animalId)
-        );
-
-        if (!animal) {
+        if (!response.ok) {
           return;
         }
 
+        const animal = await response.json();
+
         setAnimalFalecido(animal.status === "falecido");
+
+        // O banco guarda o sexo em 1 letra (m/f); o formulário usa macho/femea
+        const sexo =
+          String(animal.sexo || "").charAt(0).toUpperCase();
+
+        // Fotos vêm como /img/arquivo.jpg -> monta o endereço completo
+        const fotos: string[] = (animal.fotos || []).map(
+          (f: any) => urlFoto(f.url_foto)
+        );
+        const indicePrincipal = (animal.fotos || []).findIndex((f: any) => f.principal);
 
         setDadosIniciais({
           nome: animal.nome || "",
@@ -216,14 +223,15 @@ function CadastroAnimaisConteudo() {
           tipo: animal.tipo || "",
           porte: animal.porte || "",
           raca: animal.raca || "",
-          idade: animal.idade || "",
-          sexo: animal.sexo || "",
+          faixaIdade: animal.faixa_idade || "",
+          idade: animal.idade_detalhada || (animal.idade != null ? String(animal.idade) : ""),
+          sexo: sexo || "",
           status: animal.status || "indisponivel",
 
-          foto1: animal.fotos?.[0] || "",
-          foto2: animal.fotos?.[1] || "",
-          foto3: animal.fotos?.[2] || "",
-          fotoPrincipal: animal.fotoPrincipal || "",
+          foto1: fotos[0] || "",
+          foto2: fotos[1] || "",
+          foto3: fotos[2] || "",
+          fotoPrincipal: indicePrincipal >= 0 ? indicePrincipal : 0,
 
           castrado: animal.prontuario?.castrado || false,
           vermifugado: animal.prontuario?.vermifugado || false,
@@ -285,6 +293,7 @@ function CadastroAnimaisConteudo() {
               formData.append("tipo", values.tipo);
               formData.append("porte", values.porte);
               formData.append("raca", values.raca);
+              formData.append("faixaIdade", values.faixaIdade);
               formData.append("idade", values.idade);
               formData.append("sexo", values.sexo);
               formData.append("status", values.status);
@@ -368,8 +377,9 @@ function CadastroAnimaisConteudo() {
 
                 //=== *( PROFESSOR)
                 // fazer url para mandar para api
-                const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3010";
-    const url = modoEdicao ? `${API}/UPDATE` : `${API}/INSERT`;
+                const url = modoEdicao
+                  ? `${API}/animais/${animalId}`
+                  : `${API}/INSERT`;
 
 
                 const response = await fetch(url, {
@@ -551,11 +561,31 @@ function CadastroAnimaisConteudo() {
                     </div>
 
                     <div className="form-group">
+                      <label>Faixa de idade</label>
+                      <Field
+                        as="select"
+                        name="faixaIdade"
+                        disabled={camposDesativados}
+                      >
+                        <option value="">Selecione</option>
+                        <option value="menor que 03 meses">Menor que 03 meses</option>
+                        <option value="3 meses a 05 meses">03 meses a 05 meses</option>
+                        <option value="06 meses a 07 anos">06 meses a 07 anos</option>
+                        <option value="acima de 07 anos">Acima de 07 anos</option>
+                      </Field>
+                      <ErrorMessage
+                        name="faixaIdade"
+                        component="span"
+                        className="error-message"
+                      />
+                    </div>
+
+                    <div className="form-group">
                       <label>Idade</label>
                       <Field
                         name="idade"
                         type="text"
-                        placeholder="Ex: 2 anos ou aproximadamente 6 meses"
+                        placeholder="Opcional. Ex: 2 anos ou aproximadamente 6 meses"
                         disabled={camposDesativados}
                       />
                       <ErrorMessage
@@ -893,5 +923,14 @@ function CadastroAnimaisConteudo() {
         </Formik>
       </section>
     </Layout>
+  );
+}
+
+// Suspense: exigido pelo Next em producao quando se usa useSearchParams
+export default function CadastroAnimais() {
+  return (
+    <Suspense fallback={null}>
+      <CadastroAnimaisConteudo />
+    </Suspense>
   );
 }

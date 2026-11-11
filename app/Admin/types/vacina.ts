@@ -6,7 +6,9 @@ export type Status =
   | "Data inválida";
 
 export interface Vacina {
-  id_vacina: number;
+  id: number;
+  id_vacina?: number;
+  id_lote_vacina?: number;
   nome: string;
   tipo: string;
   especie: string;
