@@ -31,7 +31,7 @@ export default function FiltroPage() {
     const secaoJogoRef = useRef<HTMLElement | null>(null)
     const canvasRef = useRef<HTMLDivElement | null>(null)
     const balaoRef = useRef<HTMLDivElement | null>(null)
-    const [larguras, setLarguras] = useState({ canvas: 0, balao: 0 })
+    const [larguras, setLarguras] = useState({ canvas: 0, balao: 0, balaoAlt: 0 })
 
     const perguntas = [
         {
@@ -50,10 +50,10 @@ export default function FiltroPage() {
             ],
         },
         {
-            titulo: "Qual ambiente você prefere:",
+            titulo: "Você mora em:",
             opcoes: [
+                { texto: "Casa", valor: "casa" },
                 { texto: "Apartamento", valor: "apartamento" },
-                { texto: "Casa com quintal", valor: "casa" },
             ],
         },
         {
@@ -80,6 +80,29 @@ export default function FiltroPage() {
             ],
         },
     ]
+
+    // Porte não faz sentido para gato: quem escolheu gato responde sobre a idade no lugar
+    const perguntaIdadeGato = {
+        titulo: "Qual idade você prefere:",
+        opcoes: [
+            { texto: "Filhotes (até 6 meses)", valor: "filhote" },
+            { texto: "Adultos (6 meses a 7 anos)", valor: "adulto" },
+            { texto: "Idosos (acima de 7 anos)", valor: "idoso" },
+        ],
+    }
+    // Exercício também não serve para gato: pergunta se a residência é telada
+    const perguntaTeladaGato = {
+        titulo: "Sua residência é telada?",
+        opcoes: [
+            { texto: "Sim, é telada", valor: "sim" },
+            { texto: "Não é telada", valor: "nao" },
+        ],
+    }
+    const ehGato = animalJogador === "cat"
+    const perguntaAtual =
+        ehGato && indicePergunta === 1 ? perguntaIdadeGato
+        : ehGato && indicePergunta === 3 ? perguntaTeladaGato
+        : perguntas[indicePergunta]
 
     const totalCasas = 20
 
@@ -149,6 +172,7 @@ export default function FiltroPage() {
         const medir = () => setLarguras({
             canvas: canvasRef.current?.offsetWidth ?? 0,
             balao: balaoRef.current?.offsetWidth ?? 0,
+            balaoAlt: balaoRef.current?.offsetHeight ?? 0,
         })
         const observador = new ResizeObserver(medir)
         if (canvasRef.current) observador.observe(canvasRef.current)
@@ -214,6 +238,13 @@ export default function FiltroPage() {
             chaves.forEach((chave, i) => {
                 resultado[chave] = novasRespostas[i] ?? ""
             })
+            // Para gato, a 2ª resposta é a idade (não o porte) e a 4ª é se a casa é telada (não o exercício)
+            if (novasRespostas[0] === "cat") {
+                resultado.idade = resultado.porte
+                resultado.porte = ""
+                resultado.telada = resultado.exercicio
+                resultado.exercicio = ""
+            }
             localStorage.setItem("quizRespostas", JSON.stringify(resultado))
 
             setFimQuiz(true)
@@ -226,15 +257,37 @@ export default function FiltroPage() {
         setMovendo(false)
     }
 
-    // Centro do balão preso dentro do jogo; a setinha continua apontando para o bichinho
+    // Centro do balão preso dentro do jogo, sem sair pelas laterais
     let estiloBalao: React.CSSProperties = { left: posicaoBalao.left, top: posicaoBalao.top }
+    let petNoBalao = 45 // posição do bichinho dentro do balão, em % da largura do balão
     if (larguras.canvas > 0 && larguras.balao > 0) {
         const xPet = (posicaoCachorro.x / 1000) * larguras.canvas
         const meia = larguras.balao / 2
         const centro = Math.min(Math.max(xPet + 30, meia), larguras.canvas - meia)
-        const seta = Math.min(Math.max(xPet - (centro - meia), 40), larguras.balao - 40)
-        estiloBalao = { left: `${centro}px`, top: posicaoBalao.top, ['--seta' as string]: `${seta}px` }
+        estiloBalao = { left: `${centro}px`, top: posicaoBalao.top }
+        petNoBalao = ((xPet - (centro - meia)) / larguras.balao) * 100
     }
+
+    // Contorno do balão de gibi (oval + cauda numa linha só), num quadro de 100x100.
+    // A cauda sai da parte de baixo do oval e a ponta se inclina na direção do bichinho.
+    const limitar = (valor: number, min: number, max: number) => Math.min(Math.max(valor, min), max)
+    const baseCauda = limitar(petNoBalao, 28, 72)
+    const pontaCauda = limitar(petNoBalao, 6, 94)
+    const alturaNoOval = (x: number) => 50 + 50 * Math.sqrt(1 - ((x - 50) / 50) ** 2)
+
+    // A cauda acompanha o tamanho do jogo: o balão tem tamanho fixo, mas o espaço entre ele e o bichinho
+    // encolhe junto com o jogo em telas menores. Por isso o comprimento e a base da cauda são medidos em
+    // pixels (proporcionais ao jogo) e só depois convertidos para o quadro 100x100 do desenho.
+    let meiaBase = 8   // metade da largura da base da cauda, em % da largura do balão
+    let ponta = 116    // altura da ponta da cauda, em % da altura do balão (100 = borda de baixo)
+    if (larguras.canvas > 0 && larguras.balao > 0 && larguras.balaoAlt > 0) {
+        const escala = larguras.canvas / 1000
+        meiaBase = (limitar(18 * escala, 8, 22) / larguras.balao) * 100
+        ponta = 100 + ((30 * escala) / larguras.balaoAlt) * 100
+    }
+    const x1 = baseCauda - meiaBase
+    const x2 = baseCauda + meiaBase
+    const caminhoBalao = `M ${x1} ${alturaNoOval(x1)} A 50 50 0 1 1 ${x2} ${alturaNoOval(x2)} L ${pontaCauda} ${ponta} Z`
 
     return (
         <>
@@ -287,9 +340,12 @@ export default function FiltroPage() {
                     <div className={style.trilhaCanvas} ref={canvasRef}>
                         {!fimQuiz && (
                             <div className={style.quizBaloon} ref={balaoRef} style={estiloBalao}>
-                                <h4>{perguntas[indicePergunta].titulo}</h4>
+                                <svg className={style.balaoFundo} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                                    <path d={caminhoBalao} vectorEffect="non-scaling-stroke" />
+                                </svg>
+                                <h4>{perguntaAtual.titulo}</h4>
                                 <div className={style.quizOptions}>
-                                    {perguntas[indicePergunta].opcoes.map((opcao) => (
+                                    {perguntaAtual.opcoes.map((opcao) => (
                                         <label key={opcao.valor}>
                                             <input
                                                 type="radio"

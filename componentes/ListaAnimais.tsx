@@ -28,6 +28,7 @@ type Animal = {
 type QuizRespostas = {
     especie: string
     porte: string
+    idade?: string
     ambiente: string
     exercicio: string
     experiencia: string
@@ -41,11 +42,24 @@ const nivelExperiencia: Record<string, number> = {
 }
 
 
+// Faixas de idade cadastradas nos animais, agrupadas como o quiz do gato pergunta
+const faixasDeIdade: Record<string, string[]> = {
+    filhote: ["menor que 03 meses", "3 meses a 05 meses"],
+    adulto: ["06 meses a 07 anos"],
+    idoso: ["acima de 07 anos"],
+}
+
 function calcularScore(animal: Animal, quiz: QuizRespostas): number {
     let score = 0
-    if (animal.porte === quiz.porte) score += 1
+    // Gato: o quiz pergunta a idade; cachorro: pergunta o porte
+    if (quiz.idade) {
+        if (faixasDeIdade[quiz.idade]?.includes(animal.idade)) score += 1
+    } else if (animal.porte === quiz.porte) {
+        score += 1
+    }
     if (animal.ambiente === "ambos" || animal.ambiente === quiz.ambiente) score += 1
-    if (animal.exercicio === quiz.exercicio) score += 1
+    // Gato não responde sobre exercício; sem esse teste um animal sem exercício cadastrado ganharia ponto à toa
+    if (quiz.exercicio && animal.exercicio === quiz.exercicio) score += 1
     if (animal.personalidade === quiz.personalidade) score += 1
     const nivelAnimal = nivelExperiencia[animal.experiencia] ?? 1
     const nivelUsuario = nivelExperiencia[quiz.experiencia] ?? 1

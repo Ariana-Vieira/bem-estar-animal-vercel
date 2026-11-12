@@ -28,41 +28,33 @@
 
 .quizBaloon {
     position: absolute;
-    background: #ffffff;
-    border: 3px solid var(--cor-verde-agua);
-    border-radius: 45% / 52%;
-    padding: 18px 32px 16px;
-    width: min(380px, 88%);
-    min-height: 145px;
+    padding: 24px 46px 22px;
+    width: min(380px, 92%);
     z-index: 100;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
     transform: translate(-50%, -100%);
 }
-.quizBaloon::after {
-    content: "";
+
+/* Desenho do balão de gibi (oval + cauda), atrás do texto */
+.balaoFundo {
     position: absolute;
-    bottom: -18px;
-    left: calc(var(--seta, 45%) - 16px);
-    border-width: 18px 16px 0 16px;
-    border-style: solid;
-    border-color: var(--cor-verde-agua) transparent transparent transparent;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    z-index: -1;
+    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.18));
 }
 
-.quizBaloon::before {
-    content: "";
-    position: absolute;
-    bottom: -14px;
-    left: calc(var(--seta, 45%) - 13px);
-    border-width: 14px 13px 0 13px;
-    border-style: solid;
-    border-color: #ffffff transparent transparent transparent;
-    z-index: 2;
+.balaoFundo path {
+    fill: #ffffff;
+    stroke: var(--cor-verde-agua);
+    stroke-width: 3;
+    stroke-linejoin: round;
 }
 
 .quizBaloon h4 {
-    margin: 0 0 8px;
-    padding-top: 10px;
-    font-size: 1rem;
+    margin: 0 0 10px;
+    font-size: 1.05rem;
     color: var(--cor-verde-agua);
     font-weight: 700;
     text-align: center;
@@ -82,13 +74,14 @@
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 7px;
+    gap: 6px 14px;
     width: 100%;
 }
 
 .quizOptions label {
     color: #1a1a1a;
-    font-size: 0.62rem;
+    font-size: 0.85rem;
+    cursor: pointer;
     display: inline-flex;
     gap: 4px;
     align-items: center;
@@ -560,42 +553,6 @@
     .trilhaSection {
         padding: 14px;
         border-radius: 18px;
-        margin-top: 12px;
-    }
-
-    .trilhaCanvas {
-        padding-top: 0;
-    }
-
-    .quizBaloon {
-        position: static;
-        transform: none;
-        width: 100%;
-        border-radius: 20px;
-        margin-bottom: 14px;
-    }
-
-    .quizBaloon::after,
-    .quizBaloon::before {
-        display: none;
-    }
-
-    .gameBoard {
-        top: 90px;
-        height: calc(100% - 90px);
-    }
-
-    .trilhaPath {
-        stroke-width: 42;
-    }
-
-    .pawEmpty,
-    .pawFilled {
-        font-size: 1rem;
-    }
-
-    .petTrilha {
-        width: 62px;
     }
 
     .mascoteImagem {
@@ -740,36 +697,29 @@
     100%      { transform: rotate(0deg); }
 }
 
-/* Celular deitado: o jogo cabe na altura da tela, sem sair para os lados */
+/* Celular deitado: o jogo ocupa a largura da tela (a altura vem da proporção; a página rola para baixo) */
 @media (orientation: landscape) and (max-height: 500px) {
+    .paginaFiltro {
+        width: 98%;
+    }
+
     .trilhaSection {
-        padding: 64px 10px 10px; /* espaço em cima para o balão da 1ª pergunta */
+        padding: 80px 8px 8px; /* espaço em cima para o balão da 1ª pergunta */
         margin-top: 12px;
     }
 
     .trilhaCanvas {
         min-height: 0;
-        height: calc(100vh - 80px);
-        height: calc(100dvh - 80px);
-        width: auto;
-        max-width: 100%;
-        margin: 0 auto;
     }
 
-    /* volta o balão a acompanhar o bichinho (a regra de 768px o deixava fixo) */
+    /* balão menor para caber na tela baixa */
     .quizBaloon {
-        position: absolute;
-        transform: translate(-50%, -100%);
-        width: 230px;
-        min-height: 0;
-        padding: 8px 16px;
-        margin-bottom: 0;
-        border-radius: 45% / 52%;
+        width: 270px;
+        padding: 12px 36px 10px;
     }
 
-    .quizBaloon::after,
-    .quizBaloon::before {
-        display: block;
+    .quizOptions label {
+        font-size: 0.7rem;
     }
 
     .quizBaloon h4 {
@@ -791,14 +741,5 @@
         margin-top: 4px;
         padding: 5px 14px;
         font-size: 0.7rem;
-    }
-
-    .gameBoard {
-        top: 0;
-        height: 100%;
-    }
-
-    .petTrilha {
-        width: 84px;
     }
 }
