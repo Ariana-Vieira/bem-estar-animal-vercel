@@ -234,7 +234,7 @@ export const CustomNavBar = ({
                     <div key={cat.rotulo} className="mob-item-grupo">
                         <button
                             type="button"
-                            className={`mob-item-titulo${estaAberto ? ' mob-item-titulo-aberto' : ''}${categoriaAtiva(cat) ? ' mob-item-ativo' : ''}`}
+                            className={`mob-item-titulo${estaAberto ? ' mob-item-titulo-aberto' : ''}${(categoriaAtiva(cat) || estaAberto) ? ' mob-item-ativo' : ''}`}
                             onClick={() => setSubMobilAberto(estaAberto ? null : i)}
                         >
                             <span>{cat.rotulo}</span>

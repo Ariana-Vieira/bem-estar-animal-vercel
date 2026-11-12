@@ -15,17 +15,30 @@ export function ModalLogin({ aberto, onFechar }: Props) {
     const [carregando, setCarregando] = useState(false)
     const [form, setForm] = useState({ email: '', senha: '' })
 
-    // Fecha com Esc, bloqueia scroll e esconde VLibras quando aberto
+    // Fecha com Esc, bloqueia scroll e esconde o botão VLibras durante o modal
     useEffect(() => {
         if (!aberto) return
         const onTecla = (e: KeyboardEvent) => { if (e.key === 'Escape') onFechar() }
         document.addEventListener('keydown', onTecla)
         document.body.style.overflow = 'hidden'
-        document.body.classList.add('modal-login-aberto')
+
+        // VLibras v7 renderiza #vlibras-access dentro de um Shadow DOM com position:fixed,
+        // então manipular z-index do host não resolve — precisamos injetar um <style>
+        // diretamente dentro do shadow root para esconder o botão.
+        const STYLE_ID = 'modal-login-vlibras-hide'
+        const host = document.getElementById('vlibras-access-wrapper')
+        const shadow = host?.shadowRoot
+        if (shadow && !shadow.getElementById(STYLE_ID)) {
+            const s = document.createElement('style')
+            s.id = STYLE_ID
+            s.textContent = '#vlibras-access { display: none !important; }'
+            shadow.appendChild(s)
+        }
+
         return () => {
             document.removeEventListener('keydown', onTecla)
             document.body.style.overflow = ''
-            document.body.classList.remove('modal-login-aberto')
+            shadow?.getElementById(STYLE_ID)?.remove()
         }
     }, [aberto, onFechar])
 
