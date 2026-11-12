@@ -1675,6 +1675,23 @@ body.filtro-tritanopia {
     background: rgba(52, 136, 136, 0.06);
 }
 
+/* Item ativo no drawer — mesma identidade visual do desktop (pílula verde + acento laranja) */
+.mob-item-titulo.mob-item-ativo,
+.mob-item-simples.mob-item-ativo {
+    background-color: var(--cor-verde-agua);
+    color: #ffffff;
+    border-left: 4px solid var(--cor-laranja);
+    box-shadow: 0 4px 12px rgba(52, 136, 136, 0.25);
+}
+.mob-item-titulo.mob-item-ativo .mob-seta {
+    color: #ffffff;
+}
+.mob-item-titulo.mob-item-ativo:hover,
+.mob-item-titulo.mob-item-ativo:active {
+    background-color: #2b7272;
+    color: #ffffff;
+}
+
 /* Setinha com rotação suave */
 .mob-seta {
     font-size: 1.3rem !important;

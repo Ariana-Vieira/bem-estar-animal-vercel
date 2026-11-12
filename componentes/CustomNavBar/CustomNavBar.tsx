@@ -224,7 +224,7 @@ export const CustomNavBar = ({
 
                 if (!temSub) {
                     return (
-                        <Link key={cat.rotulo} href={cat.href ?? '#'} className="mob-item-simples" onClick={fecharMobil}>
+                        <Link key={cat.rotulo} href={cat.href ?? '#'} className={`mob-item-simples${categoriaAtiva(cat) ? ' mob-item-ativo' : ''}`} onClick={fecharMobil}>
                             <span>{cat.rotulo}</span>
                         </Link>
                     )
@@ -234,7 +234,7 @@ export const CustomNavBar = ({
                     <div key={cat.rotulo} className="mob-item-grupo">
                         <button
                             type="button"
-                            className={`mob-item-titulo${estaAberto ? ' mob-item-titulo-aberto' : ''}`}
+                            className={`mob-item-titulo${estaAberto ? ' mob-item-titulo-aberto' : ''}${categoriaAtiva(cat) ? ' mob-item-ativo' : ''}`}
                             onClick={() => setSubMobilAberto(estaAberto ? null : i)}
                         >
                             <span>{cat.rotulo}</span>
