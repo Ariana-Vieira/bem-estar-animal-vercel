@@ -181,6 +181,31 @@ export default function FiltroPage() {
         return () => observador.disconnect()
     }, [])
 
+    // Acompanha o bichinho: a cada passo, rola a página só o necessário para o balão e o bichinho ficarem na tela.
+    // Se já estão visíveis não faz nada; só começa depois da 1ª resposta (não rola sozinha ao abrir a página).
+    useEffect(() => {
+        if (casaAtual === 0 || fimQuiz) return
+        const quadro = requestAnimationFrame(() => {
+            const canvas = canvasRef.current
+            const balao = balaoRef.current
+            if (!canvas || !balao) return
+
+            const margem = 12
+            const caixa = canvas.getBoundingClientRect()
+            const topo = balao.getBoundingClientRect().top
+            const pes = caixa.top + (posicaoCachorro.y / 600) * caixa.height + 8
+            const altura = window.innerHeight
+
+            let rolar = 0
+            if (pes - topo > altura - 2 * margem) rolar = topo - margem    // não cabe tudo: prioriza o balão
+            else if (topo < margem) rolar = topo - margem
+            else if (pes > altura - margem) rolar = pes - (altura - margem)
+
+            if (Math.abs(rolar) > 2) window.scrollBy({ top: rolar, behavior: 'smooth' })
+        })
+        return () => cancelAnimationFrame(quadro)
+    }, [casaAtual, posicaoCachorro, indicePergunta, fimQuiz])
+
     // Com o card "volte para a vertical" aberto, assim que o celular fica em pé vai para os resultados
     useEffect(() => {
         if (!pedirVertical) return

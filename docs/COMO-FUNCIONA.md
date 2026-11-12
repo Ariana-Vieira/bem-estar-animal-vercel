@@ -139,6 +139,9 @@ São três páginas que se ligam:
 - **Pegadas na trilha:** são desenhadas no SVG (`<g id="pata-trilha">`: uma almofada e quatro dedos), e não com o
   emoji 🐾. O emoji é desenhado pela fonte do aparelho, então a cor muda de um celular para outro (no Android
   ficava azul); a forma desenhada obedece o `fill` do CSS (`pawFilled`, marrom escuro) em qualquer aparelho.
+- **A página acompanha o bichinho:** a cada passo na trilha, um `useEffect` do `page.tsx` calcula onde estão o
+  balão e os pés do bichinho na tela e rola a página (`window.scrollBy`, suave) só o necessário para os dois
+  continuarem visíveis. Se já estão visíveis, não faz nada; e só começa depois da 1ª resposta.
 - **Balão da pergunta:** um `ResizeObserver` mede a largura do jogo e do balão. Com isso o `page.tsx` calcula
   onde centralizar o balão sem que ele saia pelas laterais.
 - **Formato de balão de gibi:** o oval e a cauda são desenhados juntos, como um único contorno em SVG

@@ -246,7 +246,7 @@ export const ListaAnimais = ({ onLimparQuiz }: { onLimparQuiz?: () => void }) =>
             )}
 
             {/* FILTROS MANUAIS */}
-            <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 10, marginBottom: 20 }}>
                 <CustomSelect
                     id="filtroEspecie"
                     placeholder="Espécie"

@@ -28,8 +28,9 @@
 
 .quizBaloon {
     position: absolute;
-    padding: 24px 46px 22px;
-    width: min(380px, 92%);
+    /* Espaço interno generoso: o oval é mais estreito em cima e embaixo, então o texto precisa de folga */
+    padding: 38px 64px 30px;
+    width: min(430px, 92%);
     z-index: 100;
     transform: translate(-50%, -100%);
 }
@@ -143,6 +144,7 @@
 
 .pawFilled {
     fill: #3b2415;
+    opacity: 0.7;
 }
 
 .petTrilha {
@@ -763,8 +765,8 @@
 
     /* balão menor para caber na tela baixa */
     .quizBaloon {
-        width: 270px;
-        padding: 12px 36px 10px;
+        width: 330px;
+        padding: 28px 52px 22px;
     }
 
     .quizOptions label {

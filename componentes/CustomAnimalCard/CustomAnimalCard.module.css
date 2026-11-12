@@ -27,7 +27,8 @@
 
 @media (max-width: 600px) {
   .cards {
-    grid-template-columns: 1fr;
+    /* minmax(0, 1fr): sem isso a coluna cresce até caber a imagem em tamanho original e a página estoura para o lado */
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
