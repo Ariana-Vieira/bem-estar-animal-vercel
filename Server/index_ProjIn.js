@@ -276,6 +276,16 @@ app.post("/INSERT", upload.array("fotos", 3), async (req, res) => {
 
     } = req.body;
 
+    // está pegando os dados do corpo da requisição
+    console.log("=================================");
+    console.log("FOTO PRINCIPAL RECEBIDA:");
+    console.log(fotoPrincipal);
+    console.log("TIPO:");
+    console.log(typeof fotoPrincipal);
+    console.log("FOTOS RECEBIDAS:");
+    // (só os nomes: com memoryStorage o req.files traz o arquivo inteiro)
+    console.log((req.files || []).map(f => f.originalname));
+    console.log("=================================");
     const cn = await conectar();
     const result = await cn
         .request()
