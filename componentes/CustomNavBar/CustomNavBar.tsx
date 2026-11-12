@@ -99,6 +99,7 @@ export const CustomNavBar = ({
                     >
                         <span className="material-symbols-rounded">pets</span>
                         <span>Menu</span>
+                        <span className="material-symbols-rounded mob-hamburguer">menu</span>
                     </button>
 
                     {/* NAVEGAÇÃO PRINCIPAL */}

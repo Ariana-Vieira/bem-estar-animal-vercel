@@ -750,7 +750,7 @@ div[vw] div[vw-plugin-wrapper] {
     right: 10px;
     top: calc(50% + 8px);
     transform: none;
-    z-index: 1000;
+    z-index: 1070;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -1493,9 +1493,10 @@ body.filtro-tritanopia {
 
 /* No desktop: esconde o trigger mobile, overlay e drawer */
 @media (min-width: 769px) {
-    .mob-btn-trigger { display: none !important; }
-    .mob-overlay     { display: none !important; }
-    .mob-drawer      { display: none !important; }
+    .mob-btn-trigger  { display: none !important; }
+    .mob-overlay      { display: none !important; }
+    .mob-drawer       { display: none !important; }
+    .mob-hamburguer   { display: none !important; }
 }
 
 /* No mobile: esconde o link desktop e a barra de nav */
@@ -1513,13 +1514,21 @@ body.filtro-tritanopia {
         justify-content: center;
     }
     .mob-btn-trigger {
-        width: 80% !important;
+        width: 90% !important;
         min-width: unset !important;
         flex-direction: row !important;
         gap: 0.5rem;
-        height: 48px !important;
+        height: 52px !important;
         border-radius: 12px !important;
-        justify-content: center;
+        justify-content: space-between !important;
+        padding: 0 1.25rem !important;
+    }
+    .mob-hamburguer {
+        font-size: 1.4rem !important;
+    }
+    /* Mais espaço entre VLibras e Daltonismo no mobile */
+    .filtro-wrapper {
+        top: calc(50% + 36px);
     }
 }
 
