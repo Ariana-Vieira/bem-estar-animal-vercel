@@ -850,8 +850,24 @@ app.delete('/usuarios/:id', async (req, res) => {
 
 // ALTERAR
 app.put('/usuarios/:id', async (req, res) => {
+
+    // testa a os dados indo -----------
+
+    // console.log("ID:", req.params.id);
+    // console.log("BODY:", req.body);
+
+    // res.json({
+    //     id: req.params.id,
+    //     dados: req.body
+    // });
+    //-----------------------------------
+
     try {
+
+        // Pegar o ID da URL
         const id = parseInt(req.params.id);
+        console.log(req.body);
+        // Pegar os dados do corpo da requisição
         const {
             nome,
             email,
