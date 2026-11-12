@@ -1,30 +1,159 @@
 
-
-.selectMeet {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    font-size: 18px;
-    background-color: #fff;
-    color: #333;
-    cursor: pointer;
-    min-width: 0;
+.raiz {
+    position: relative;
     width: 100%;
 }
 
-@media (max-width: 768px) {
-    .selectMeet {
-        font-size: 16px;
-        padding: 10px 12px;
+/* Filtro em formato de pílula, no mesmo estilo da barra de busca do site */
+.botao {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
+    padding: 11px 14px 11px 18px;
+    border: 1.5px solid rgba(52, 136, 136, 0.28);
+    border-radius: 50px;
+    background-color: #f5fdfd;
+    color: #4a5a5a;
+    font-family: inherit;
+    font-size: 16px;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.botao:hover {
+    border-color: var(--cor-verde-agua);
+}
+
+.botao:focus-visible,
+.aberto {
+    outline: none;
+    border-color: var(--cor-verde-agua);
+    box-shadow: 0 0 0 3px rgba(52, 136, 136, 0.15);
+}
+
+/* Filtro já escolhido: fica em destaque para a pessoa ver o que está ativo */
+.selecionado {
+    border-color: var(--cor-verde-agua);
+    background-color: #e3f6f5;
+    color: #1d5b5b;
+    font-weight: 600;
+}
+
+.icone {
+    flex-shrink: 0;
+    width: 1.35em;
+    text-align: center;
+    font-size: 1.1em;
+    line-height: 1;
+}
+
+.texto {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.seta {
+    flex-shrink: 0;
+    font-size: 22px !important;
+    color: var(--cor-verde-agua);
+    transition: transform 0.2s ease;
+}
+
+.aberto .seta {
+    transform: rotate(180deg);
+}
+
+/* Lista de opções */
+.lista {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    /* ajusta-se ao texto das opções (sem quebrar linha à toa), nunca menor que o botão */
+    min-width: 100%;
+    width: max-content;
+    max-width: min(300px, calc(100vw - 32px));
+    z-index: 60;
+    margin: 0;
+    padding: 6px;
+    list-style: none;
+    max-height: 280px;
+    overflow-y: auto;
+    background: #ffffff;
+    border: 1.5px solid rgba(52, 136, 136, 0.25);
+    border-radius: 20px;
+    box-shadow: 0 14px 30px rgba(52, 136, 136, 0.22);
+    animation: lista-entra 0.15s ease;
+}
+
+/* Filtros da coluna da direita: a lista cresce para a esquerda, para não sair da tela */
+.raiz:nth-child(even) .lista {
+    left: auto;
+    right: 0;
+}
+
+@keyframes lista-entra {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    color: #3b5858;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.itemAtivo {
+    background-color: #e3f6f5;
+    color: #1d5b5b;
+}
+
+.itemSelecionado {
+    font-weight: 700;
+    color: #1d5b5b;
+}
+
+.itemIcone {
+    flex-shrink: 0;
+    width: 1.35em;
+    text-align: center;
+    line-height: 1;
+}
+
+.itemTexto {
+    flex: 1;
+    min-width: 0;
+}
+
+.itemCheck {
+    flex-shrink: 0;
+    font-size: 20px !important;
+    color: var(--cor-verde-agua);
+}
+
+/* Celular (2 filtros por linha): se sobrar um sozinho na última linha, ele ocupa a linha toda */
+@media (max-width: 480px) {
+    .raiz:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
     }
 }
 
-.selectMeet:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-
-.selectMeet:focus {
-  outline: 2px solid #348888;
+@media (max-width: 768px) {
+    .botao {
+        padding: 10px 10px 10px 14px;
+        gap: 8px;
+        font-size: 15px;
+    }
 }

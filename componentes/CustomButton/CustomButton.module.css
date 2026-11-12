@@ -14,14 +14,23 @@
   color: #fff;
   font-size: 20px;
   border: none;
-  padding: 10px 30px;
+  padding: 7px 30px;
   border-radius: 50px;
-  width: 665px;
-  height: 45px;
+  width: 100%;
+  max-width: 665px;
+  /* sem altura fixa: se o texto quebrar numa tela estreita, o botão cresce junto com ele */
+  min-height: 45px;
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.2s ease;
   box-shadow: 0 8px 10px rgba(158, 248, 238, 0.4);
+}
+
+@media (max-width: 600px) {
+  .verTodosBtn {
+    font-size: 17px;
+    padding: 10px 16px;
+  }
 }
 
 .verTodosBtn:hover {

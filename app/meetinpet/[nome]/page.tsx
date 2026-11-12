@@ -16,6 +16,8 @@ const especieEmoji: Record<string, string> = { gato: "🐈", cachorro: "🐕" };
 const sexoLabel: Record<string, string> = { femea: "Fêmea", macho: "Macho" };
 const sexoEmoji: Record<string, string> = { femea: "♀", macho: "♂" };
 const porteLabel: Record<string, string> = { pequeno: "Pequeno", medio: "Médio", grande: "Grande" };
+const personalidadeLabel: Record<string, string> = { calmo: "Calmo", ativo: "Brincalhão" };
+const personalidadeEmoji: Record<string, string> = { calmo: "😌", ativo: "🎾" };
 
 export default function DetalhesPage({ params }: { params: Promise<{ nome: string }> }) {
     const { nome } = use(params);
@@ -41,6 +43,8 @@ export default function DetalhesPage({ params }: { params: Promise<{ nome: strin
         );
     }
 
+    // Porte só é mostrado para cachorro (para gato não faz sentido); personalidade aparece para os dois
+    const ehGato = animal.especie === "gato";
     const fotosUrls = animal.fotos.length > 0 ? animal.fotos.map(f => f.urlFoto) : [animal.imagem];
     const adestramentoAtual = animal.adestramento[0];
 
@@ -85,7 +89,12 @@ export default function DetalhesPage({ params }: { params: Promise<{ nome: strin
                                 <div className={style.quickStats}>
                                     <span className={style.statBadge}>{especieEmoji[animal.especie]} {especieLabel[animal.especie]}</span>
                                     <span className={style.statBadge}>{sexoEmoji[animal.sexo]} {sexoLabel[animal.sexo]}</span>
-                                    <span className={style.statBadge}>📏 {porteLabel[animal.porte]}</span>
+                                    {!ehGato && <span className={style.statBadge}>📏 {porteLabel[animal.porte]}</span>}
+                                    {animal.personalidade && (
+                                        <span className={style.statBadge}>
+                                            {personalidadeEmoji[animal.personalidade] ?? "😊"} {personalidadeLabel[animal.personalidade] ?? animal.personalidade}
+                                        </span>
+                                    )}
                                     <span className={style.statBadge}>🎂 {animal.idadeDetalhada}</span>
                                 </div>
 
@@ -100,7 +109,8 @@ export default function DetalhesPage({ params }: { params: Promise<{ nome: strin
                                     <p>
                                         <strong>Espécie:</strong> {especieLabel[animal.especie]}<br />
                                         <strong>Sexo:</strong> {sexoLabel[animal.sexo]}<br />
-                                        <strong>Porte:</strong> {porteLabel[animal.porte]}<br />
+                                        {!ehGato && <><strong>Porte:</strong> {porteLabel[animal.porte]}<br /></>}
+                                        {animal.personalidade && <><strong>Personalidade:</strong> {personalidadeLabel[animal.personalidade] ?? animal.personalidade}<br /></>}
                                         <strong>Idade:</strong> {animal.idadeDetalhada}<br />
                                         <strong>Peso:</strong> {animal.pesoDetalhado}
                                     </p>

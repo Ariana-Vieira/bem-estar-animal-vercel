@@ -79,6 +79,7 @@
   background-color: #FA7F08;
   color: #fff;
   width: 225px;
+  max-width: calc(100% - 24px);
   height: 40px;
   border: none;
   border-radius: 50px;

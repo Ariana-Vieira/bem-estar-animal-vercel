@@ -81,13 +81,9 @@ export const ListaAnimais = ({ onLimparQuiz }: { onLimparQuiz?: () => void }) =>
     
     const [textoBusca, setTextoBusca] = useState('')
 
-    const [filtros, setFiltros] = useState({
-        especie: "",
-        sexo: "",
-        porte: "",
-        idade: "",
-        peso: ""
-    })
+    // "porte" só vale para cachorro; "personalidade" vale para os dois (ver os selects abaixo)
+    const filtrosVazios = { especie: "", sexo: "", porte: "", idade: "", personalidade: "" }
+    const [filtros, setFiltros] = useState(filtrosVazios)
 
     const [quizRespostas, setQuizRespostas] = useState<QuizRespostas | null>(null)
     // Com resultado do quiz, a página começa só com as recomendações; este estado mostra a lista completa
@@ -174,7 +170,7 @@ export const ListaAnimais = ({ onLimparQuiz }: { onLimparQuiz?: () => void }) =>
                 (!filtros.sexo || animal.sexo === filtros.sexo) &&
                 (!filtros.porte || animal.porte === filtros.porte) &&
                 (!filtros.idade || animal.idade === filtros.idade) &&
-                (!filtros.peso || animal.peso === filtros.peso)
+                (!filtros.personalidade || animal.personalidade === filtros.personalidade)
             )
         })
     }, [filtros, animais, textoBusca])
@@ -246,44 +242,68 @@ export const ListaAnimais = ({ onLimparQuiz }: { onLimparQuiz?: () => void }) =>
             )}
 
             {/* FILTROS MANUAIS */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 10, marginBottom: 20 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12, width: "100%", maxWidth: 1100, margin: "0 auto 24px" }}>
                 <CustomSelect
                     id="filtroEspecie"
                     placeholder="Espécie"
+                    icone="🐾"
                     value={filtros.especie}
-                    onChange={(v) => setFiltros(p => ({ ...p, especie: v }))}
+                    // Ao escolher gato, limpa o porte (o filtro de porte só existe para cachorro)
+                    onChange={(v) => setFiltros(p => ({
+                        ...p,
+                        especie: v,
+                        porte: v === "gato" ? "" : p.porte,
+                    }))}
                     options={[
-                        { label: "Gato", value: "gato" },
-                        { label: "Cachorro", value: "cachorro" }
+                        { label: "Gato", value: "gato", icone: "🐱" },
+                        { label: "Cachorro", value: "cachorro", icone: "🐶" }
                     ]}
                 />
 
                 <CustomSelect
                     id="filtroSexo"
                     placeholder="Sexo"
+                    icone="⚥"
                     value={filtros.sexo}
                     onChange={(v) => setFiltros(p => ({ ...p, sexo: v }))}
                     options={[
-                        { label: "Macho", value: "macho" },
-                        { label: "Fêmea", value: "femea" }
+                        { label: "Macho", value: "macho", icone: "♂" },
+                        { label: "Fêmea", value: "femea", icone: "♀" }
                     ]}
                 />
 
+                {/* Porte só faz sentido para cachorro */}
+                {filtros.especie !== "gato" && (
+                    <CustomSelect
+                        id="filtroPorte"
+                        placeholder="Porte"
+                        icone="📏"
+                        value={filtros.porte}
+                        onChange={(v) => setFiltros(p => ({ ...p, porte: v }))}
+                        options={[
+                            { label: "Pequeno", value: "pequeno" },
+                            { label: "Médio", value: "medio" },
+                            { label: "Grande", value: "grande" }
+                        ]}
+                    />
+                )}
+
                 <CustomSelect
-                    id="filtroPorte"
-                    placeholder="Porte"
-                    value={filtros.porte}
-                    onChange={(v) => setFiltros(p => ({ ...p, porte: v }))}
+                    id="filtroPersonalidade"
+                    placeholder="Personalidade"
+                    icone="😊"
+                    value={filtros.personalidade}
+                    onChange={(v) => setFiltros(p => ({ ...p, personalidade: v }))}
                     options={[
-                        { label: "Pequeno", value: "pequeno" },
-                        { label: "Médio", value: "medio" },
-                        { label: "Grande", value: "grande" }
+                        { label: "Calmo", value: "calmo", icone: "😌" },
+                        { label: "Brincalhão", value: "ativo", icone: "🎾" }
                     ]}
                 />
 
                 <CustomSelect
                     id="filtroIdade"
                     placeholder="Idade"
+                    icone="🎂"
                     value={filtros.idade}
                     onChange={(v) => setFiltros(p => ({ ...p, idade: v }))}
                     options={[
@@ -291,18 +311,6 @@ export const ListaAnimais = ({ onLimparQuiz }: { onLimparQuiz?: () => void }) =>
                         { label: "03 meses a 05 meses", value: "3 meses a 05 meses" },
                         { label: "06 meses a 07 anos", value: "06 meses a 07 anos" },
                         { label: "Acima de 07 anos", value: "acima de 07 anos" }
-                    ]}
-                />
-
-                <CustomSelect
-                    id="filtroPeso"
-                    placeholder="Peso"
-                    value={filtros.peso}
-                    onChange={(v) => setFiltros(p => ({ ...p, peso: v }))}
-                    options={[
-                        { label: "Até 5kg", value: "ate 5kg" },
-                        { label: "De 06 a 15kg", value: "de 06 a 15kg" },
-                        { label: "Acima de 15kg", value: "acima de 15kg" }
                     ]}
                 />
             </div>
@@ -321,15 +329,7 @@ export const ListaAnimais = ({ onLimparQuiz }: { onLimparQuiz?: () => void }) =>
                     <CustomButton
                         label="Clique para exibir todos"
                         className={styleBtn.verTodosBtn}
-                        onClick={() =>
-                            setFiltros({
-                                especie: "",
-                                sexo: "",
-                                porte: "",
-                                idade: "",
-                                peso: ""
-                            })
-                        } />
+                        onClick={() => setFiltros(filtrosVazios)} />
                 </div>
             </section>
             </>

@@ -415,11 +415,11 @@ export default function FiltroPage() {
                             {/* Pegada desenhada (não é emoji): o emoji muda de cor conforme o aparelho */}
                             <defs>
                                 <g id="pata-trilha">
-                                    <ellipse cx="0" cy="4.5" rx="6.5" ry="5.5" />
-                                    <ellipse cx="-8.5" cy="-2" rx="2.7" ry="3.6" transform="rotate(-25 -8.5 -2)" />
-                                    <ellipse cx="-3.2" cy="-8" rx="2.7" ry="3.8" transform="rotate(-8 -3.2 -8)" />
-                                    <ellipse cx="3.2" cy="-8" rx="2.7" ry="3.8" transform="rotate(8 3.2 -8)" />
-                                    <ellipse cx="8.5" cy="-2" rx="2.7" ry="3.6" transform="rotate(25 8.5 -2)" />
+                                    <ellipse cx="0" cy="3.7" rx="4.8" ry="3.9" />
+                                    <ellipse cx="-6.3" cy="-1.2" rx="1.7" ry="2.5" transform="rotate(-28 -6.3 -1.2)" />
+                                    <ellipse cx="-2.3" cy="-5.7" rx="1.85" ry="2.7" transform="rotate(-8 -2.3 -5.7)" />
+                                    <ellipse cx="2.3" cy="-5.7" rx="1.85" ry="2.7" transform="rotate(8 2.3 -5.7)" />
+                                    <ellipse cx="6.3" cy="-1.2" rx="1.7" ry="2.5" transform="rotate(28 6.3 -1.2)" />
                                 </g>
                             </defs>
 
@@ -427,7 +427,7 @@ export default function FiltroPage() {
                             {pontosTrilha.map((ponto, idx) => (
                                 <g
                                     key={`empty-${idx}`}
-                                    transform={`translate(${ponto.x},${ponto.y}) rotate(${ponto.ang + 90}) translate(${idx % 2 ? 6 : -6},0)`}
+                                    transform={`translate(${ponto.x},${ponto.y}) rotate(${ponto.ang + 90}) translate(${idx % 2 ? 5 : -5},0)`}
                                     className={style.pawEmpty}
                                     opacity={idx <= casaAtual ? 0 : 0.35}
                                 >
@@ -439,7 +439,7 @@ export default function FiltroPage() {
                                 idx <= casaAtual ? (
                                     <g
                                         key={`filled-${idx}`}
-                                        transform={`translate(${ponto.x},${ponto.y}) rotate(${ponto.ang + 90}) translate(${idx % 2 ? 6 : -6},0)`}
+                                        transform={`translate(${ponto.x},${ponto.y}) rotate(${ponto.ang + 90}) translate(${idx % 2 ? 5 : -5},0)`}
                                         className={style.pawFilled}
                                     >
                                         <use href="#pata-trilha" />
