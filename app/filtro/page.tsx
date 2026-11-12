@@ -25,6 +25,7 @@ export default function FiltroPage() {
     const [movendo, setMovendo] = useState(false)
     const [fimQuiz, setFimQuiz] = useState(false)
     const [mostrarModal, setMostrarModal] = useState(false)
+    const [pedirVertical, setPedirVertical] = useState(false)
     const [logsQuiz, setLogsQuiz] = useState<string[]>([])
     const [confetes, setConfetes] = useState<Array<{ left: string; color: string; delay: string; duration: string }>>([])
     const trilhaRef = useRef<SVGPathElement | null>(null)
@@ -180,6 +181,15 @@ export default function FiltroPage() {
         return () => observador.disconnect()
     }, [])
 
+    // Com o card "volte para a vertical" aberto, assim que o celular fica em pé vai para os resultados
+    useEffect(() => {
+        if (!pedirVertical) return
+        const emPe = window.matchMedia('(orientation: portrait)')
+        const aoGirar = () => { if (emPe.matches) router.push('/meetinpet#recomendacoes') }
+        emPe.addEventListener('change', aoGirar)
+        return () => emPe.removeEventListener('change', aoGirar)
+    }, [pedirVertical, router])
+
     // Celular: ao girar para a horizontal com o jogo na tela, rola até ele
     useEffect(() => {
         const secao = secaoJogoRef.current
@@ -210,6 +220,13 @@ export default function FiltroPage() {
         }
 
         return alvo
+    }
+
+    // Vai para os animais recomendados; com o celular deitado, antes pede para voltar à vertical
+    const verResultados = () => {
+        const celularDeitado = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches
+        if (celularDeitado) setPedirVertical(true)
+        else router.push('/meetinpet#recomendacoes')
     }
 
     const responderPergunta = async () => {
@@ -370,34 +387,38 @@ export default function FiltroPage() {
                                 d="M 100 200 C 300 200, 300 350, 500 350 C 700 350, 700 500, 900 500"
                             />
 
+                            {/* Pegada desenhada (não é emoji): o emoji muda de cor conforme o aparelho */}
+                            <defs>
+                                <g id="pata-trilha">
+                                    <ellipse cx="0" cy="4.5" rx="6.5" ry="5.5" />
+                                    <ellipse cx="-8.5" cy="-2" rx="2.7" ry="3.6" transform="rotate(-25 -8.5 -2)" />
+                                    <ellipse cx="-3.2" cy="-8" rx="2.7" ry="3.8" transform="rotate(-8 -3.2 -8)" />
+                                    <ellipse cx="3.2" cy="-8" rx="2.7" ry="3.8" transform="rotate(8 3.2 -8)" />
+                                    <ellipse cx="8.5" cy="-2" rx="2.7" ry="3.6" transform="rotate(25 8.5 -2)" />
+                                </g>
+                            </defs>
+
+                            {/* Os dedos apontam para onde o bichinho vai; os passos alternam para os lados */}
                             {pontosTrilha.map((ponto, idx) => (
-                                <text
+                                <g
                                     key={`empty-${idx}`}
-                                    x={ponto.x}
-                                    y={ponto.y}
-                                    textAnchor="middle"
-                                    alignmentBaseline="middle"
-                                    transform={`rotate(${ponto.ang + 90},${ponto.x},${ponto.y})`}
+                                    transform={`translate(${ponto.x},${ponto.y}) rotate(${ponto.ang + 90}) translate(${idx % 2 ? 6 : -6},0)`}
                                     className={style.pawEmpty}
                                     opacity={idx <= casaAtual ? 0 : 0.35}
                                 >
-                                    🐾
-                                </text>
+                                    <use href="#pata-trilha" />
+                                </g>
                             ))}
 
                             {pontosTrilha.map((ponto, idx) => (
                                 idx <= casaAtual ? (
-                                    <text
+                                    <g
                                         key={`filled-${idx}`}
-                                        x={ponto.x}
-                                        y={ponto.y}
-                                        textAnchor="middle"
-                                        alignmentBaseline="middle"
-                                        transform={`rotate(${ponto.ang + 90},${ponto.x},${ponto.y})`}
+                                        transform={`translate(${ponto.x},${ponto.y}) rotate(${ponto.ang + 90}) translate(${idx % 2 ? 6 : -6},0)`}
                                         className={style.pawFilled}
                                     >
-                                        🐾
-                                    </text>
+                                        <use href="#pata-trilha" />
+                                    </g>
                                 ) : null
                             ))}
 
@@ -442,18 +463,35 @@ export default function FiltroPage() {
 
             <div className={`${style.congratulationsModal} ${mostrarModal ? style.showModal : ""}`}>
                 <div className={style.modalContent}>
-                    <span className={style.modalEmoji}>🎉</span>
-                    Parabéns!
-                    < br />
-                    Você está preparado para adotar um amigo!
-                    <button
-                        type="button"
-                        className={style.cardBotao}
-                        style={{ marginTop: "1rem" }}
-                        onClick={() => router.push("/meetinpet")}
-                    >
-                        VER MEUS RESULTADOS
-                    </button>
+                    {pedirVertical ? (
+                        <>
+                            <span className={`material-symbols-rounded ${style.modalIconeGirar}`}>screen_rotation</span>
+                            Volte o celular para a posição vertical
+                            <p className={style.modalAviso}>Assim você vê com calma os animais que combinam com você.</p>
+                            <button
+                                type="button"
+                                className={style.modalBotaoSecundario}
+                                onClick={() => router.push("/meetinpet#recomendacoes")}
+                            >
+                                Ver assim mesmo
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <span className={style.modalEmoji}>🎉</span>
+                            Parabéns!
+                            < br />
+                            Você está preparado para adotar um amigo!
+                            <button
+                                type="button"
+                                className={style.cardBotao}
+                                style={{ marginTop: "1rem" }}
+                                onClick={verResultados}
+                            >
+                                VER MEUS RESULTADOS
+                            </button>
+                        </>
+                    )}
                 </div>
                 <div className={style.confettiContainer}>
                     {confetes.map((item, index) => (

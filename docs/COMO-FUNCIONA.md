@@ -127,6 +127,18 @@ São três páginas que se ligam:
   **largura** da tela (a altura vem da proporção, então a página rola para baixo) e o balão da pergunta fica menor.
 - **Rolagem automática:** no `page.tsx`, um `IntersectionObserver` sabe se o jogo está na tela e um
   `matchMedia` avisa quando o celular é girado. Se as duas coisas acontecem, a página rola até o jogo.
+- **Ver os resultados:** no fim do quiz, o botão "Ver meus resultados" leva para `/meetinpet#recomendacoes`.
+  Se o celular estiver deitado, antes aparece no modal um card pedindo para **voltar à posição vertical**
+  (`pedirVertical`); assim que o celular fica em pé (`matchMedia('(orientation: portrait)')`) a página abre
+  sozinha. Há também o botão "Ver assim mesmo". No `ListaAnimais`, o trecho com `id="recomendacoes"` é onde a
+  página rola ao chegar com esse `#` no endereço, então a pessoa já vê os animais recomendados.
+- **Página dos animais no celular:** o cabeçalho do `/meetinpet` tem um logo a mais (Meetin'Pet). No celular o CSS
+  (`cabecalho-logo-extra` e `cabecalho-logo-pref` em `globals.css`) deixa o logo da prefeitura no canto superior
+  direito e coloca o Meetin'Pet sozinho, centralizado, numa linha própria. Quem já fez o quiz (há `quizRespostas` no
+  `localStorage`) não vê mais a frase "Ainda não sabe qual escolher? Faça o quiz".
+- **Pegadas na trilha:** são desenhadas no SVG (`<g id="pata-trilha">`: uma almofada e quatro dedos), e não com o
+  emoji 🐾. O emoji é desenhado pela fonte do aparelho, então a cor muda de um celular para outro (no Android
+  ficava azul); a forma desenhada obedece o `fill` do CSS (`pawFilled`, marrom escuro) em qualquer aparelho.
 - **Balão da pergunta:** um `ResizeObserver` mede a largura do jogo e do balão. Com isso o `page.tsx` calcula
   onde centralizar o balão sem que ele saia pelas laterais.
 - **Formato de balão de gibi:** o oval e a cauda são desenhados juntos, como um único contorno em SVG

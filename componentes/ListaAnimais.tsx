@@ -67,7 +67,7 @@ function calcularScore(animal: Animal, quiz: QuizRespostas): number {
     return score
 }
 
-export const ListaAnimais = () => {
+export const ListaAnimais = ({ onLimparQuiz }: { onLimparQuiz?: () => void }) => {
     interface IAlert {
     show?: boolean;
     message?: string;
@@ -121,9 +121,17 @@ export const ListaAnimais = () => {
         }
     }, [mostrarTodos])
 
+    // Chegando do quiz (endereço com #recomendacoes), já abre na parte dos animais recomendados
+    useEffect(() => {
+        if (modoRecomendado && window.location.hash === "#recomendacoes") {
+            document.getElementById("recomendacoes")?.scrollIntoView({ block: "start" })
+        }
+    }, [modoRecomendado])
+
     const limparRecomendacoes = () => {
         localStorage.removeItem("quizRespostas")
         setQuizRespostas(null)
+        onLimparQuiz?.()
     }
 
     const animaisRecomendados = useMemo(() => {
@@ -176,7 +184,7 @@ export const ListaAnimais = () => {
             {/* RECOMENDAÇÕES DO QUIZ (só elas, até clicar em "Ver todos os animais") */}
             {modoRecomendado && (
                 <>
-                    <div style={{ width: "100%", display: "flex", flexDirection:"column", alignItems: "center", gap: "1rem", marginBottom: "1rem" }}>
+                    <div id="recomendacoes" style={{ width: "100%", display: "flex", flexDirection:"column", alignItems: "center", gap: "1rem", marginBottom: "1rem", scrollMarginTop: "12px" }}>
                         <h2 className="titulo-secao text-center">Principais recomendações para você 🐾</h2>
 
                         <CustomAlert message={alert?.message} show={alert?.show} variant={alert?.variant} />

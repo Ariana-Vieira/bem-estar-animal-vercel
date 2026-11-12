@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CustomHeader } from "@/componentes/CustomHeader/CustomHeader";
 import { CustomAcessibilidade } from "@/componentes/CustomAcessibilidade/CustomAcessibilidade";
 import { CustomNavBar } from "@/componentes/CustomNavBar/CustomNavBar";
@@ -15,7 +15,12 @@ import style from "./page.module.css";
 
 export default function MeetinpetPage() {
     const [menuAberto, setMenuAberto] = useState(false)
+    // null = ainda não verificou; quem já fez o quiz não precisa do convite para fazê-lo
+    const [fezQuiz, setFezQuiz] = useState<boolean | null>(null)
 
+    useEffect(() => {
+        setFezQuiz(!!localStorage.getItem("quizRespostas"))
+    }, [])
 
     return (
         <>
@@ -35,13 +40,15 @@ export default function MeetinpetPage() {
                         <CustomTitle title="ANIMAIS PARA ADOÇÃO" />
 
                         <p className={style.dicaQuiz}>
-                            Ainda não sabe qual escolher? <Link href="/filtro">Faça o quiz</Link> e descubra seu pet ideal.
+                            {fezQuiz === false && (
+                                <>Ainda não sabe qual escolher? <Link href="/filtro">Faça o quiz</Link> e descubra seu pet ideal.{" "}</>
+                            )}
                             Quer entender como funciona? <Link href="/adocao-responsavel">Veja como adotar</Link>.
                         </p>
 
                         {/* <!-- Lista e filtros --> */}
                         <CustomSection>
-                            <ListaAnimais />
+                            <ListaAnimais onLimparQuiz={() => setFezQuiz(false)} />
                         </CustomSection>
                     </main>
 

@@ -50,9 +50,11 @@ export const CustomHeader = ({ extraLogo, textAlt, className }: CustomHeaderProp
 
                     <div className="cabecalho-logo-dir">
                         {extraLogo && (
-                            <img src={extraLogo} alt={textAlt} className={className} />
+                            <div className="cabecalho-logo-extra">
+                                <img src={extraLogo} alt={textAlt} className={className} />
+                            </div>
                         )}
-                        <a href="https://www.votorantim.sp.gov.br/" target="_blank" rel="noopener noreferrer" className="logo-link" title="Site da Prefeitura de Votorantim">
+                        <a href="https://www.votorantim.sp.gov.br/" target="_blank" rel="noopener noreferrer" className="logo-link cabecalho-logo-pref" title="Site da Prefeitura de Votorantim">
                             <img src="/logo_prefeituraVotorantim.png" alt="Prefeitura Municipal de Votorantim - abre o site da prefeitura" className="logo-prefeitura" />
                         </a>
                     </div>
