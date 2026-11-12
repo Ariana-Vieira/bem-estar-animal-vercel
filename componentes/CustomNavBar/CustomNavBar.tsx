@@ -27,6 +27,8 @@ export const CustomNavBar = ({
     const [hashAtual, setHashAtual] = useState('')
 
     const fecharMobil = () => { setMenuMobilAberto(false); setSubMobilAberto(null) }
+    // Só um item fica em destaque: com uma categoria aberta, só ela; com tudo fechado, a da página atual
+    const nenhumAberto = subMobilAberto === null
 
     // Fecha ao trocar de página
     useEffect(() => {
@@ -213,7 +215,7 @@ export const CustomNavBar = ({
         </div>
 
         <div className="mob-drawer-body">
-            <Link href={homeHref} className="mob-item-simples" onClick={fecharMobil}>
+            <Link href={homeHref} className={`mob-item-simples${nenhumAberto && ehAtivo(homeHref) ? ' mob-item-ativo' : ''}`} onClick={fecharMobil}>
                 <span className="material-symbols-rounded">home</span>
                 <span>Início</span>
             </Link>
@@ -221,10 +223,11 @@ export const CustomNavBar = ({
             {categorias.map((cat, i) => {
                 const temSub = !!cat.itens && cat.itens.length > 0
                 const estaAberto = subMobilAberto === i
+                const subAtivo = indiceSubAtivo(cat)
 
                 if (!temSub) {
                     return (
-                        <Link key={cat.rotulo} href={cat.href ?? '#'} className={`mob-item-simples${categoriaAtiva(cat) ? ' mob-item-ativo' : ''}`} onClick={fecharMobil}>
+                        <Link key={cat.rotulo} href={cat.href ?? '#'} className={`mob-item-simples${nenhumAberto && categoriaAtiva(cat) ? ' mob-item-ativo' : ''}`} onClick={fecharMobil}>
                             <span>{cat.rotulo}</span>
                         </Link>
                     )
@@ -234,7 +237,7 @@ export const CustomNavBar = ({
                     <div key={cat.rotulo} className="mob-item-grupo">
                         <button
                             type="button"
-                            className={`mob-item-titulo${estaAberto ? ' mob-item-titulo-aberto' : ''}${(categoriaAtiva(cat) || estaAberto) ? ' mob-item-ativo' : ''}`}
+                            className={`mob-item-titulo${estaAberto ? ' mob-item-titulo-aberto' : ''}${(nenhumAberto ? categoriaAtiva(cat) : estaAberto) ? ' mob-item-ativo' : ''}`}
                             onClick={() => setSubMobilAberto(estaAberto ? null : i)}
                         >
                             <span>{cat.rotulo}</span>
@@ -244,9 +247,14 @@ export const CustomNavBar = ({
                         </button>
 
                         <ul className={`mob-sub-lista${estaAberto ? ' mob-sub-lista-aberta' : ''}`}>
-                            {cat.itens!.map(item => (
+                            {cat.itens!.map((item, idx) => (
                                 <li key={item.rotulo}>
-                                    <Link href={item.href} className="mob-sub-link" onClick={fecharMobil}>
+                                    <Link
+                                        href={item.href}
+                                        className={`mob-sub-link${subAtivo === idx ? ' mob-sub-ativo' : ''}`}
+                                        aria-current={subAtivo === idx ? 'page' : undefined}
+                                        onClick={fecharMobil}
+                                    >
                                         {item.rotulo}
                                     </Link>
                                 </li>

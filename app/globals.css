@@ -1700,6 +1700,7 @@ body.filtro-tritanopia {
     background-color: var(--cor-verde-agua);
     color: #ffffff;
     border-left: 4px solid var(--cor-laranja);
+    padding-left: calc(1.25rem - 4px); /* compensa a borda: o texto não desloca em relação aos outros itens */
     box-shadow: 0 4px 12px rgba(52, 136, 136, 0.25);
 }
 .mob-item-titulo.mob-item-ativo .mob-seta {
@@ -1750,6 +1751,15 @@ body.filtro-tritanopia {
     background: rgba(52, 136, 136, 0.1);
     color: var(--cor-laranja);
     padding-left: 2rem;
+}
+
+/* Subitem da página em que a pessoa está: mesma borda laranja dos itens selecionados */
+.mob-sub-link.mob-sub-ativo {
+    background: rgba(52, 136, 136, 0.14);
+    color: #1d5b5b;
+    font-weight: 700;
+    border-left: 4px solid var(--cor-laranja);
+    padding-left: calc(1.75rem - 4px);
 }
 
 /* Botão de Login no final */
