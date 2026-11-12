@@ -318,7 +318,7 @@
 
 .cabecalhoTitulo {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
 }
 
 .cabecalhoTitulo h1 {

@@ -76,6 +76,19 @@
   color: #22babb;
 }
 
+.botao-logout {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: auto;
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.botao-logout:hover {
+  color: #a71d2a;
+}
+
 .admin-dropdown button {
   background: none;
   border: none;

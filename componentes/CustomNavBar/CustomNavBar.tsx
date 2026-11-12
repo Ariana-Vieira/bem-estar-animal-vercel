@@ -3,15 +3,13 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { categoriasMenu, itemEntrar, type MenuCategoria } from './menuItens'
+import { ModalLogin } from '@/componentes/ModalLogin/ModalLogin'
 
 type CustomNavBarProps = {
-    // Props antigas do menu lateral, mantidas só por compatibilidade (ignoradas).
     isMenuOpen?: boolean
     onOpenMenu?: () => void
-    // Permite reutilizar o mesmo layout em outras áreas (ex.: Admin).
     categorias?: MenuCategoria[]
     homeHref?: string
-    // Item final (ex.: Login). Passe null para não mostrar.
     itemFinal?: { rotulo: string; href: string } | null
 }
 
@@ -21,13 +19,21 @@ export const CustomNavBar = ({
     itemFinal = itemEntrar,
 }: CustomNavBarProps) => {
     const [aberto, setAberto] = useState<number | null>(null)
+    const [menuMobilAberto, setMenuMobilAberto] = useState(false)
+    const [subMobilAberto, setSubMobilAberto] = useState<number | null>(null)
+    const [modalLoginAberto, setModalLoginAberto] = useState(false)
     const barraRef = useRef<HTMLDivElement>(null)
     const pathname = usePathname()
-    // Âncora atual (#secao): permite marcar o subitem da seção em que a pessoa está
     const [hashAtual, setHashAtual] = useState('')
 
+    const fecharMobil = () => { setMenuMobilAberto(false); setSubMobilAberto(null) }
+
     // Fecha ao trocar de página
-    useEffect(() => { setAberto(null) }, [pathname])
+    useEffect(() => {
+        setAberto(null)
+        setMenuMobilAberto(false)
+        setSubMobilAberto(null)
+    }, [pathname])
 
     // Mantém a âncora atual em dia (ao abrir a página e quando ela muda)
     useEffect(() => {
@@ -74,14 +80,26 @@ export const CustomNavBar = ({
         ehAtivo(cat.href) || !!cat.itens?.some(item => ehAtivo(item.href))
 
     return (
+        <>
         <nav className="navegacao">
         <div className="container-fluid">
             <div className="d-flex align-items-center justify-content-between py-2 gap-3">
                 <div className="d-flex align-items-center gap-0 nav-esquerda">
-                    <Link href={homeHref} className="btn btn-menu" aria-label="Ir para a página inicial">
+                    {/* Desktop: link direto para a home */}
+                    <Link href={homeHref} className="btn btn-menu mob-btn-home" aria-label="Ir para a página inicial">
                         <span className="material-symbols-rounded">pets</span>
                         <span>Início</span>
                     </Link>
+                    {/* Mobile: abre o drawer */}
+                    <button
+                        type="button"
+                        className="btn btn-menu mob-btn-trigger"
+                        onClick={() => setMenuMobilAberto(true)}
+                        aria-label="Abrir menu de navegação"
+                    >
+                        <span className="material-symbols-rounded">pets</span>
+                        <span>Menu</span>
+                    </button>
 
                     {/* NAVEGAÇÃO PRINCIPAL */}
                     <div className="barra-nav" ref={barraRef}>
@@ -161,19 +179,96 @@ export const CustomNavBar = ({
                         })}
 
                         {itemFinal && (
-                            <Link
-                                href={itemFinal.href}
-                                className={`link-nav link-nav-entrar${ehAtivo(itemFinal.href) ? ' ativo' : ''}`}
-                                aria-current={ehAtivo(itemFinal.href) ? 'page' : undefined}
+                            <button
+                                type="button"
+                                className="link-nav link-nav-entrar link-nav-botao"
+                                onClick={() => setModalLoginAberto(true)}
                             >
                                 <span className="material-symbols-rounded">lock</span>
                                 {itemFinal.rotulo}
-                            </Link>
+                            </button>
                         )}
                     </div>
                 </div>
             </div>
         </div>
     </nav>
+
+    {/* ── MENU MOBILE DRAWER ── */}
+    <div
+        className={`mob-overlay${menuMobilAberto ? ' mob-overlay-ativo' : ''}`}
+        onClick={fecharMobil}
+        aria-hidden="true"
+    />
+    <aside className={`mob-drawer${menuMobilAberto ? ' mob-drawer-aberto' : ''}`} aria-label="Menu de navegação">
+        <div className="mob-drawer-header">
+            <div className="mob-drawer-badge">
+                <span className="material-symbols-rounded">pets</span>
+                <span>MENU</span>
+            </div>
+            <button className="mob-drawer-close" onClick={fecharMobil} aria-label="Fechar menu">
+                <span className="material-symbols-rounded">close</span>
+            </button>
+        </div>
+
+        <div className="mob-drawer-body">
+            <Link href={homeHref} className="mob-item-simples" onClick={fecharMobil}>
+                <span className="material-symbols-rounded">home</span>
+                <span>Início</span>
+            </Link>
+
+            {categorias.map((cat, i) => {
+                const temSub = !!cat.itens && cat.itens.length > 0
+                const estaAberto = subMobilAberto === i
+
+                if (!temSub) {
+                    return (
+                        <Link key={cat.rotulo} href={cat.href ?? '#'} className="mob-item-simples" onClick={fecharMobil}>
+                            <span>{cat.rotulo}</span>
+                        </Link>
+                    )
+                }
+
+                return (
+                    <div key={cat.rotulo} className="mob-item-grupo">
+                        <button
+                            type="button"
+                            className={`mob-item-titulo${estaAberto ? ' mob-item-titulo-aberto' : ''}`}
+                            onClick={() => setSubMobilAberto(estaAberto ? null : i)}
+                        >
+                            <span>{cat.rotulo}</span>
+                            <span className={`material-symbols-rounded mob-seta${estaAberto ? ' mob-seta-aberta' : ''}`}>
+                                expand_more
+                            </span>
+                        </button>
+
+                        <ul className={`mob-sub-lista${estaAberto ? ' mob-sub-lista-aberta' : ''}`}>
+                            {cat.itens!.map(item => (
+                                <li key={item.rotulo}>
+                                    <Link href={item.href} className="mob-sub-link" onClick={fecharMobil}>
+                                        {item.rotulo}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )
+            })}
+
+            {itemFinal && (
+                <button
+                    type="button"
+                    className="mob-item-login"
+                    onClick={() => { fecharMobil(); setModalLoginAberto(true) }}
+                >
+                    <span className="material-symbols-rounded">lock</span>
+                    <span>{itemFinal.rotulo}</span>
+                </button>
+            )}
+        </div>
+    </aside>
+
+    <ModalLogin aberto={modalLoginAberto} onFechar={() => setModalLoginAberto(false)} />
+    </>
     )
 }

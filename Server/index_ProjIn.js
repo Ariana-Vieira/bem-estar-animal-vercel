@@ -8,6 +8,7 @@
 
 const express = require('express');
 const cors = require('cors');
+const bcrypt = require('bcryptjs');
 let app = express();
 let bodyParser = require('body-parser');
 let methodOvirride = require('method-override');
@@ -142,19 +143,8 @@ app.get('/qtd', async (req, resp) => {
 
 
 //========== LER A LISTA DE VACINAS ===========================
-// *Mesma ideia do app.get("/animais"): lá o
-// professor fez INNER JOIN entre ANIMAL e FOTO (pegando a foto.principal = 1)
-// porque os dados de foto ficam em outra tabela. Aqui é parecido, só que com
-// várias tabelas de detalhe penduradas no lote mais recente de cada vacina:
-//   - LOTE_VACINA: lote, data de fabricação, validade, quantidade,
-//     valor unitário, responsável, temperatura e local de armazenamento;
-//   - FABRICANTE: ligado por LOTE_VACINA.id_fabricante;
-//   - ENTRADA_ESTOQUE + FORNECEDOR: ligados por LOTE_VACINA.id_entrada
-//     (fornecedor, data de entrada, nota fiscal e valor total).
-// O "SELECT * FROM VACINA" antigo não trazia nada disso.
-// Como uma vacina pode ter mais de um lote cadastrado, usamos CROSS APPLY
-// para pegar sempre o lote mais recente (TOP 1 ... ORDER BY id_lote_vacina
-// DESC), fazendo o papel que o "principal = 1" faz para as fotos do animal.
+// CROSS APPLY traz o lote mais recente de cada vacina junto com fabricante,
+// fornecedor e entrada de estoque.
 app.get('/vacinas', async (req, resp) => {
     try {
         const cn = await conectar();
@@ -286,21 +276,7 @@ app.post("/INSERT", upload.array("fotos", 3), async (req, res) => {
 
     } = req.body;
 
-    // está pegando os dados do corpo da requisição
-    console.log("=================================");
-    console.log("FOTO PRINCIPAL RECEBIDA:");
-    console.log(fotoPrincipal);
-    console.log("TIPO:");
-    console.log(typeof fotoPrincipal);
-    console.log("FOTOS RECEBIDAS:");
-    // (só os nomes: com memoryStorage o req.files traz o arquivo inteiro)
-    console.log((req.files || []).map(f => f.originalname));
-    console.log("=================================");
     const cn = await conectar();
-
-
-    // conectando com o banco de dados
-    // Executar INSERT
     const result = await cn
         .request()
         .input('nome', sql.VarChar(100), nome)
@@ -344,20 +320,13 @@ app.post("/INSERT", upload.array("fotos", 3), async (req, res) => {
                 `);
 
 
-    // Pegar o ID DO ANIMAL E COLOCAR  NA TABELA FOTO
-    // ==========================================
-
     const idAnimal = result.recordset[0].id_animal;
-    // 3 - CADASTRAR AS FOTOS
-    // ==========================================
 
     if (req.files && req.files.length > 0) {
 
         for (let i = 0; i < req.files.length; i++) {
             const foto = req.files[i];
-            // Caminho que será salvo no banco (URL do Blob ou /img/arquivo)
             const caminhoFoto = await salvarFoto(foto);
-            console.log("Foto:", caminhoFoto);
             await cn
                 .request()
                 .input("id_animal", sql.Int, idAnimal)
@@ -393,28 +362,9 @@ app.post("/INSERT", upload.array("fotos", 3), async (req, res) => {
 });
 
 //========== CADASTRO DE VACINAS ========================
-// *(ALUNA - cadastro de vacinas) Segue o mesmo esquema de "cabeçalho +
-// detalhe" que o professor usou em ANIMAL + FOTO: insere o cabeçalho
-// (VACINA), pega o id gerado (OUTPUT INSERTED.*, igual ao /INSERT de
-// animal) e usa esse id para inserir o detalhe (LOTE_VACINA).
-//
-// A diferença para o animal é que o lote de vacina tem mais "pedaços"
-// espalhados em tabelas que já existiam no banco, só não estavam ligadas:
-//   - FABRICANTE: fabricante não é texto solto, é outra tabela. Por isso
-//     aqui a gente procura o fabricante pelo nome e só cria um registro
-//     novo se ainda não existir;
-//   - FORNECEDOR + ENTRADA_ESTOQUE: fornecedor, data de entrada, nota
-//     fiscal e valor total já tinham tabela própria no banco
-//     (ENTRADA_ESTOQUE), só faltava o LOTE_VACINA apontar pra ela
-//     (coluna id_entrada, adicionada em estruturabanco/AJUSTE_VACINA.sql);
-//   - responsavel / valor_unitario / temperatura / local_armazenamento:
-//     não tinham tabela própria que fizesse sentido usar, então viraram
-//     colunas simples direto em LOTE_VACINA (mesmo script de ajuste).
-//
-// IMPORTANTE SOBRE O BANCO (ajustar nesta máquina):
-// rodar estruturabanco/AJUSTE_VACINA.sql ANTES de testar este cadastro -
-// é ele quem cria especie/tipo em VACINA e id_entrada/valor_unitario/
-// responsavel/temperatura/local_armazenamento em LOTE_VACINA.
+// Insere cabeçalho (VACINA) + detalhe (LOTE_VACINA).
+// Fabricante e fornecedor são buscados pelo nome e criados se não existirem.
+// Pré-requisito: rodar estruturabanco/AJUSTE_VACINA.sql antes do primeiro uso.
 app.post("/addvacina", async (req, resp) => {
     try {
         // FAZER UM OBJETO PARA RECEBER OS REQ
@@ -519,12 +469,9 @@ app.post("/addvacina", async (req, resp) => {
          )
         `)
 
-       //============== 5) LOTE_VACINA (detalhe) PEGAR O ID DA VACINA ===========
+       //============== 5) LOTE_VACINA (detalhe) ===========
        const id_v = resultado.recordset[0].id_vacina;
-       // *(ALUNA) A tabela LOTE_VACINA exige quantidade_total (NOT NULL,
-       // sem valor padrão) além de quantidade_disponivel. Como é a primeira
-       // entrada do lote, quantidade_total e quantidade_disponivel começam
-       // com o mesmo valor (nada foi usado/aplicado ainda).
+       // Na primeira entrada do lote, quantidade_total = quantidade_disponivel
        resultado = await cn.request()
        .input("id_v", sql.Int, id_v)
        .input("id_fabricante", sql.Int, id_fabricante)
@@ -903,24 +850,8 @@ app.delete('/usuarios/:id', async (req, res) => {
 
 // ALTERAR
 app.put('/usuarios/:id', async (req, res) => {
-
-    // testa a os dados indo -----------
-
-    // console.log("ID:", req.params.id);
-    // console.log("BODY:", req.body);
-
-    // res.json({
-    //     id: req.params.id,
-    //     dados: req.body
-    // });
-    //-----------------------------------
-
     try {
-
-        // Pegar o ID da URL
         const id = parseInt(req.params.id);
-        console.log(req.body);
-        // Pegar os dados do corpo da requisição
         const {
             nome,
             email,
@@ -933,7 +864,6 @@ app.put('/usuarios/:id', async (req, res) => {
 
 
 
-        // //     // Atualizar usuário
         const cn = await conectar();
         const result = await cn
             .request()
@@ -990,6 +920,129 @@ app.put('/usuarios/:id', async (req, res) => {
 
 
 
+
+// ========== LOGIN =============================
+app.post('/login', async (req, res) => {
+    try {
+        const { email, senha } = req.body;
+
+        if (!email || !senha) {
+            return res.status(400).json({ erro: 'Email e senha são obrigatórios' });
+        }
+
+        const cn = await conectar();
+        const resultado = await cn
+            .request()
+            .input('email', sql.VarChar(100), email)
+            .query('SELECT * FROM USUARIO WHERE email = @email AND status = \'A\'');
+
+        if (resultado.recordset.length === 0) {
+            return res.status(401).json({ erro: 'Email ou senha incorretos' });
+        }
+
+        const usuario = resultado.recordset[0];
+        const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
+
+        if (!senhaCorreta) {
+            return res.status(401).json({ erro: 'Email ou senha incorretos' });
+        }
+
+        // Buscar permissões do usuário
+        const permissoes = await cn
+            .request()
+            .input('id', sql.Int, usuario.id_usuario)
+            .query(`
+                SELECT p.id_permissao, p.nome, p.descricao
+                FROM PERMISSAO p
+                INNER JOIN USUARIO_PERMISSAO up ON up.id_permissao = p.id_permissao
+                WHERE up.id_usuario = @id
+            `);
+
+        res.json({
+            id_usuario: usuario.id_usuario,
+            nome: usuario.nome,
+            email: usuario.email,
+            permissoes: permissoes.recordset
+        });
+
+    } catch (erro) {
+        console.error('Erro no login:', erro);
+        res.status(500).json({ erro: 'Erro interno no servidor' });
+    }
+});
+
+// ========== PERMISSÕES DO USUÁRIO =============
+app.get('/usuarios/:id/permissoes', async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const cn = await conectar();
+
+        const resultado = await cn
+            .request()
+            .input('id', sql.Int, id)
+            .query(`
+                SELECT p.id_permissao, p.nome, p.descricao
+                FROM PERMISSAO p
+                INNER JOIN USUARIO_PERMISSAO up ON up.id_permissao = p.id_permissao
+                WHERE up.id_usuario = @id
+            `);
+
+        res.json(resultado.recordset);
+
+    } catch (erro) {
+        console.error('Erro ao buscar permissões:', erro);
+        res.status(500).json({ erro: 'Erro interno no servidor' });
+    }
+});
+
+// ========== CADASTRO DE USUÁRIO ===============
+app.post('/usuarios', async (req, res) => {
+    try {
+        const { nome, email, senha, telefone, cpf_cnpj, tipo_pessoa, data_nasc } = req.body;
+
+        if (!nome || !email || !senha) {
+            return res.status(400).json({ erro: 'Nome, email e senha são obrigatórios' });
+        }
+
+        const cn = await conectar();
+
+        // Verificar se email já existe
+        const existente = await cn
+            .request()
+            .input('email', sql.VarChar(100), email)
+            .query('SELECT id_usuario FROM USUARIO WHERE email = @email');
+
+        if (existente.recordset.length > 0) {
+            return res.status(409).json({ erro: 'Email já cadastrado' });
+        }
+
+        const senhaHash = await bcrypt.hash(senha, 10);
+
+        const resultado = await cn
+            .request()
+            .input('nome', sql.VarChar(100), nome)
+            .input('email', sql.VarChar(100), email)
+            .input('senha', sql.VarChar(255), senhaHash)
+            .input('telefone', sql.VarChar(20), telefone || null)
+            .input('cpf_cnpj', sql.VarChar(18), cpf_cnpj || null)
+            .input('tipo_pessoa', sql.Char(1), tipo_pessoa || null)
+            .input('data_nasc', sql.Date, data_nasc || null)
+            .query(`
+                INSERT INTO USUARIO (nome, email, senha, telefone, cpf_cnpj, tipo_pessoa, data_nasc, status)
+                OUTPUT INSERTED.id_usuario, INSERTED.nome, INSERTED.email
+                VALUES (@nome, @email, @senha, @telefone, @cpf_cnpj, @tipo_pessoa, @data_nasc, 'A')
+            `);
+
+        res.status(201).json({
+            mensagem: 'Usuário cadastrado com sucesso!',
+            usuario: resultado.recordset[0]
+        });
+
+    } catch (erro) {
+        console.error('Erro ao cadastrar usuário:', erro);
+        res.status(500).json({ erro: 'Erro interno no servidor' });
+    }
+});
 
 // Erros do envio de foto (ex.: arquivo grande demais) viram uma resposta clara
 app.use((err, req, resp, next) => {

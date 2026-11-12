@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './login.module.css';
+import { setUsuario } from '@/app/lib/auth';
 
 //=============================
 
@@ -25,6 +26,8 @@ import { CustomNoticias } from "@/componentes/CustomNoticias/CustomNoticias";
 export default function LoginPage() {
   const router = useRouter();
   const [menuAberto, setMenuAberto] = useState(false);
+  const [erro, setErro] = useState('');
+  const [carregando, setCarregando] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     senha: ''
@@ -35,11 +38,34 @@ export default function LoginPage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Tentativa de login:', formData);
-    // Por enquanto não há validação de usuário: o login leva direto ao cadastro de animais.
-    router.push('/Admin/cadastro-animais');
+    setErro('');
+    setCarregando(true);
+
+    try {
+      const api = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3010';
+      const resposta = await fetch(`${api}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      const dados = await resposta.json();
+
+      if (!resposta.ok) {
+        setErro(dados.erro || 'Erro ao fazer login');
+        return;
+      }
+
+      setUsuario(dados);
+      router.push('/Admin');
+
+    } catch {
+      setErro('Não foi possível conectar ao servidor');
+    } finally {
+      setCarregando(false);
+    }
   };
 
   return (
@@ -91,8 +117,10 @@ export default function LoginPage() {
               />
             </div>
 
-            <button type="submit" className={styles['btn-entrar']}>
-              ENTRAR
+            {erro && <p className={styles.erro}>{erro}</p>}
+
+            <button type="submit" className={styles['btn-entrar']} disabled={carregando}>
+              {carregando ? 'ENTRANDO...' : 'ENTRAR'}
               <span className="material-symbols-rounded">arrow_forward</span>
             </button>
           </form>
