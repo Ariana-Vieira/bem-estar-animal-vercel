@@ -45,3 +45,5 @@ next-env.d.ts
 
 
 
+# guia de estudo local (nao sobe para o git)
+docs/COMO-FUNCIONA.md
