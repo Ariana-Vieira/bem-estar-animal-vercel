@@ -1502,6 +1502,32 @@ body.filtro-tritanopia {
 @media (max-width: 768px) {
     .mob-btn-home { display: none !important; }
     .barra-nav    { display: none !important; }
+
+    /* Logo da prefeitura empurrado para a direita */
+    .cabecalho-logo-esq { flex: 1; }
+    .cabecalho-logo-dir { margin-left: auto; }
+
+    /* Botão Menu centralizado e largo */
+    .nav-esquerda {
+        width: 100%;
+        justify-content: center;
+    }
+    .mob-btn-trigger {
+        width: 80% !important;
+        min-width: unset !important;
+        flex-direction: row !important;
+        gap: 0.5rem;
+        height: 48px !important;
+        border-radius: 12px !important;
+        justify-content: center;
+    }
+}
+
+/* Esconde o botão quando o drawer está aberto */
+.mob-menu-aberto .mob-btn-trigger {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
 }
 
 /* Overlay escurecido */

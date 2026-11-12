@@ -81,7 +81,7 @@ export const CustomNavBar = ({
 
     return (
         <>
-        <nav className="navegacao">
+        <nav className={`navegacao${menuMobilAberto ? ' mob-menu-aberto' : ''}`}>
         <div className="container-fluid">
             <div className="d-flex align-items-center justify-content-between py-2 gap-3">
                 <div className="d-flex align-items-center gap-0 nav-esquerda">
