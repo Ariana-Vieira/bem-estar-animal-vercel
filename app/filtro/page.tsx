@@ -28,6 +28,10 @@ export default function FiltroPage() {
     const [logsQuiz, setLogsQuiz] = useState<string[]>([])
     const [confetes, setConfetes] = useState<Array<{ left: string; color: string; delay: string; duration: string }>>([])
     const trilhaRef = useRef<SVGPathElement | null>(null)
+    const secaoJogoRef = useRef<HTMLElement | null>(null)
+    const canvasRef = useRef<HTMLDivElement | null>(null)
+    const balaoRef = useRef<HTMLDivElement | null>(null)
+    const [larguras, setLarguras] = useState({ canvas: 0, balao: 0 })
 
     const perguntas = [
         {
@@ -131,13 +135,46 @@ export default function FiltroPage() {
 
         const topoBalao = Math.max(2, ((atual.y - 108) / 600) * 100)
         setPosicaoBalao({
-            left: `calc(${(atual.x / 1000) * 100}% - 20px)`,
+            left: `calc(${(atual.x / 1000) * 100}% + 30px)`,
             top: `${topoBalao}%`,
         })
     }, [casaAtual, pontosTrilha])
 
     useEffect(() => {
         adicionarLog("Questionário carregado. Responda para encontrar seu companheiro ideal.")
+    }, [])
+
+    // Mede a largura do jogo e do balão (mudam com a tela) para o balão não sair pelas laterais
+    useEffect(() => {
+        const medir = () => setLarguras({
+            canvas: canvasRef.current?.offsetWidth ?? 0,
+            balao: balaoRef.current?.offsetWidth ?? 0,
+        })
+        const observador = new ResizeObserver(medir)
+        if (canvasRef.current) observador.observe(canvasRef.current)
+        if (balaoRef.current) observador.observe(balaoRef.current)
+        return () => observador.disconnect()
+    }, [])
+
+    // Celular: ao girar para a horizontal com o jogo na tela, rola até ele
+    useEffect(() => {
+        const secao = secaoJogoRef.current
+        if (!secao) return
+
+        let jogoNaTela = false
+        const observador = new IntersectionObserver(([entrada]) => { jogoNaTela = entrada.isIntersecting })
+        observador.observe(secao)
+
+        const celularDeitado = window.matchMedia('(orientation: landscape) and (max-height: 500px)')
+        const aoGirar = () => {
+            if (celularDeitado.matches && jogoNaTela) secao.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+        celularDeitado.addEventListener('change', aoGirar)
+
+        return () => {
+            observador.disconnect()
+            celularDeitado.removeEventListener('change', aoGirar)
+        }
     }, [])
 
     const moverPorPassos = async (passos: number) => {
@@ -189,6 +226,16 @@ export default function FiltroPage() {
         setMovendo(false)
     }
 
+    // Centro do balão preso dentro do jogo; a setinha continua apontando para o bichinho
+    let estiloBalao: React.CSSProperties = { left: posicaoBalao.left, top: posicaoBalao.top }
+    if (larguras.canvas > 0 && larguras.balao > 0) {
+        const xPet = (posicaoCachorro.x / 1000) * larguras.canvas
+        const meia = larguras.balao / 2
+        const centro = Math.min(Math.max(xPet + 30, meia), larguras.canvas - meia)
+        const seta = Math.min(Math.max(xPet - (centro - meia), 40), larguras.balao - 40)
+        estiloBalao = { left: `${centro}px`, top: posicaoBalao.top, ['--seta' as string]: `${seta}px` }
+    }
+
     return (
         <>
             {/* <!-- Icones Acessibilidade --> */}
@@ -229,10 +276,17 @@ export default function FiltroPage() {
                     <CustomButton label="CONHECER TODOS" className={style.ctaAdotarButton} onClick={() => { localStorage.removeItem("quizRespostas"); router.push('/meetinpet'); }}></CustomButton>
                 </section>
 
-                <section className={style.trilhaSection}>
-                    <div className={style.trilhaCanvas}>
+                <section className={style.trilhaSection} ref={secaoJogoRef}>
+                    {/* Só aparece no celular em pé (ver filtro.module.css) */}
+                    <div className={style.avisoGirar}>
+                        <span className="material-symbols-rounded">screen_rotation</span>
+                        <strong>Gire o celular para jogar</strong>
+                        <p>A trilha de Sol e Lua fica melhor na horizontal. Vire o aparelho e o jogo se ajusta à sua tela.</p>
+                    </div>
+
+                    <div className={style.trilhaCanvas} ref={canvasRef}>
                         {!fimQuiz && (
-                            <div className={style.quizBaloon} style={{ left: posicaoBalao.left, top: posicaoBalao.top }}>
+                            <div className={style.quizBaloon} ref={balaoRef} style={estiloBalao}>
                                 <h4>{perguntas[indicePergunta].titulo}</h4>
                                 <div className={style.quizOptions}>
                                     {perguntas[indicePergunta].opcoes.map((opcao) => (

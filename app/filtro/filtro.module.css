@@ -36,13 +36,13 @@
     min-height: 145px;
     z-index: 100;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
-    transform: translate(calc(-50% + 50px), -100%);
+    transform: translate(-50%, -100%);
 }
 .quizBaloon::after {
     content: "";
     position: absolute;
     bottom: -18px;
-    left: 45%;
+    left: calc(var(--seta, 45%) - 16px);
     border-width: 18px 16px 0 16px;
     border-style: solid;
     border-color: var(--cor-verde-agua) transparent transparent transparent;
@@ -52,7 +52,7 @@
     content: "";
     position: absolute;
     bottom: -14px;
-    left: 45.4%;
+    left: calc(var(--seta, 45%) - 13px);
     border-width: 14px 13px 0 13px;
     border-style: solid;
     border-color: #ffffff transparent transparent transparent;
@@ -524,10 +524,6 @@
 }
 
 @media (max-width: 1024px) {
-    .trilhaCanvas {
-        min-height: 590px;
-    }
-
     .cartaoHistoriaTopo{
         width: 42%;
     }
@@ -568,7 +564,6 @@
     }
 
     .trilhaCanvas {
-        min-height: 560px;
         padding-top: 0;
     }
 
@@ -689,4 +684,121 @@
 /* base para a camada de patinhas */
 .paginaFiltro {
     position: relative;
+}
+
+/* =====================================================================
+   Jogo no celular
+   ===================================================================== */
+
+.avisoGirar {
+    display: none;
+}
+
+/* Celular em pé: troca o jogo por um aviso para girar o aparelho */
+@media (max-width: 768px) and (orientation: portrait) {
+    .avisoGirar {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 28px 18px;
+        background: #ffffff;
+        border: 2px dashed rgba(52, 136, 136, 0.35);
+        border-radius: 18px;
+        text-align: center;
+        color: #2d2d2d;
+    }
+
+    .avisoGirar .material-symbols-rounded {
+        font-size: 3.2rem;
+        color: var(--cor-verde-agua);
+        animation: girar-celular 2.4s ease-in-out infinite;
+    }
+
+    .avisoGirar strong {
+        color: var(--cor-verde-agua);
+        font-size: 1.15rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .avisoGirar p {
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.4;
+    }
+
+    .trilhaCanvas,
+    .logPanel {
+        display: none;
+    }
+}
+
+@keyframes girar-celular {
+    0%, 20%   { transform: rotate(0deg); }
+    50%, 70%  { transform: rotate(-90deg); }
+    100%      { transform: rotate(0deg); }
+}
+
+/* Celular deitado: o jogo cabe na altura da tela, sem sair para os lados */
+@media (orientation: landscape) and (max-height: 500px) {
+    .trilhaSection {
+        padding: 64px 10px 10px; /* espaço em cima para o balão da 1ª pergunta */
+        margin-top: 12px;
+    }
+
+    .trilhaCanvas {
+        min-height: 0;
+        height: calc(100vh - 80px);
+        height: calc(100dvh - 80px);
+        width: auto;
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    /* volta o balão a acompanhar o bichinho (a regra de 768px o deixava fixo) */
+    .quizBaloon {
+        position: absolute;
+        transform: translate(-50%, -100%);
+        width: 230px;
+        min-height: 0;
+        padding: 8px 16px;
+        margin-bottom: 0;
+        border-radius: 45% / 52%;
+    }
+
+    .quizBaloon::after,
+    .quizBaloon::before {
+        display: block;
+    }
+
+    .quizBaloon h4 {
+        padding-top: 0;
+        margin-bottom: 4px;
+        font-size: 0.8rem;
+    }
+
+    .quizBaloon p {
+        margin-top: 3px;
+        font-size: 0.65rem;
+    }
+
+    .quizOptions {
+        gap: 4px 8px;
+    }
+
+    .quizOptions button {
+        margin-top: 4px;
+        padding: 5px 14px;
+        font-size: 0.7rem;
+    }
+
+    .gameBoard {
+        top: 0;
+        height: 100%;
+    }
+
+    .petTrilha {
+        width: 84px;
+    }
 }

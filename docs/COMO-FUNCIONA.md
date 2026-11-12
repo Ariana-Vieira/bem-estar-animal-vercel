@@ -115,6 +115,17 @@ São três páginas que se ligam:
    **"Ver todos os animais"**; ao clicar, as recomendações somem e a lista completa aparece
    (com botão para voltar às recomendações). Um `useState` (`mostrarTodos`) controla isso.
 
+**O quiz no celular:** a trilha é um desenho largo (proporção 1000×600), que não cabe na tela em pé.
+- **Celular em pé:** o CSS esconde o jogo e mostra um cartão "Gire o celular para jogar" (classe `avisoGirar`).
+  Quem decide é uma *media query* `(max-width: 768px) and (orientation: portrait)`, sem JavaScript.
+- **Celular deitado:** outra media query, `(orientation: landscape) and (max-height: 500px)`, faz o jogo ter a
+  altura da tela (`100dvh`) e o balão da pergunta fica menor.
+- **Rolagem automática:** no `page.tsx`, um `IntersectionObserver` sabe se o jogo está na tela e um
+  `matchMedia` avisa quando o celular é girado. Se as duas coisas acontecem, a página rola até o jogo.
+- **Balão da pergunta:** um `ResizeObserver` mede a largura do jogo e do balão. Com isso o `page.tsx` calcula
+  onde centralizar o balão sem que ele saia pelas laterais, e passa a posição da setinha na variável CSS
+  `--seta`, para ela continuar apontando para o bichinho.
+
 **Backup:** a versão antiga do `/filtro` está em `app/_bkp/filtro_2026-11-09/`. Para restaurar, copie os
 arquivos de volta para `app/filtro/` (instruções em `app/_bkp/LEIA-ME.md`).
 
