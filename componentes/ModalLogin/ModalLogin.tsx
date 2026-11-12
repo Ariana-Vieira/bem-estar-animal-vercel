@@ -15,15 +15,17 @@ export function ModalLogin({ aberto, onFechar }: Props) {
     const [carregando, setCarregando] = useState(false)
     const [form, setForm] = useState({ email: '', senha: '' })
 
-    // Fecha com Esc e bloqueia scroll quando aberto
+    // Fecha com Esc, bloqueia scroll e esconde VLibras quando aberto
     useEffect(() => {
         if (!aberto) return
         const onTecla = (e: KeyboardEvent) => { if (e.key === 'Escape') onFechar() }
         document.addEventListener('keydown', onTecla)
         document.body.style.overflow = 'hidden'
+        document.body.classList.add('modal-login-aberto')
         return () => {
             document.removeEventListener('keydown', onTecla)
             document.body.style.overflow = ''
+            document.body.classList.remove('modal-login-aberto')
         }
     }, [aberto, onFechar])
 

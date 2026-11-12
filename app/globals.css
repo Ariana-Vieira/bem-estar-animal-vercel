@@ -699,6 +699,16 @@ a {
  * Daltonismo top: calc(50% + 8px)   [= -58px + 50px + 16px]
  */
 
+/* Esconde VLibras e Daltonismo quando o modal de login está aberto */
+body.modal-login-aberto div[vw] {
+    z-index: 1 !important;
+    pointer-events: none !important;
+}
+body.modal-login-aberto .filtro-wrapper {
+    z-index: 1 !important;
+    pointer-events: none !important;
+}
+
 /* VLibras - container posicionado no grupo, sem tamanho fixo para o widget poder expandir */
 div[vw] {
     position: fixed !important;
