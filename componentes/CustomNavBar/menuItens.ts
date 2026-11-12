@@ -86,10 +86,12 @@ export const categoriasAdmin: MenuCategoria[] = [
         itens: [
             { rotulo: 'Cadastro de Animais', href: '/Admin/cadastro-animais' },
             { rotulo: 'Cadastro de Vacinas', href: '/Admin/cadastro-vacinas' },
+            { rotulo: 'Cadastro de Banners', href: '/Admin/cadastro-banners' },
         ],
     },
     { rotulo: 'Lista de Animais', href: '/Admin/lista-animais' },
     { rotulo: 'Lista de Vacinas', href: '/Admin/lista-vacinas' },
+    { rotulo: 'Lista de Banners', href: '/Admin/lista-banners' },
     { rotulo: 'Saída de Animais', href: '/Admin/saida-animais' },
     { rotulo: 'Adotantes', href: '/Admin/adotantes' },
     { rotulo: 'Adestradores', href: '/Admin/adestradores' },

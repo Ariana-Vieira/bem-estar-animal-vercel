@@ -1,0 +1,230 @@
+/* Complementa o CadastroVacinaForm.css (que já traz .form-card, .form-grid,
+   .form-group, .submit-area, .error-message, .checkbox-group). Aqui ficam só
+   as partes próprias do banner: envio da imagem e pré-visualização. */
+
+.banner-dica {
+  margin-top: 8px;
+
+  font-size: 14px;
+  line-height: 1.5;
+
+  color: #666;
+}
+
+.banner-imagem-acoes {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 14px;
+
+  margin-top: 18px;
+}
+
+.banner-remover {
+  border: 2px solid #e53935;
+  background-color: transparent;
+  color: #e53935;
+
+  padding: 10px 18px;
+
+  border-radius: 50px;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.banner-remover:hover {
+  background-color: #e53935;
+  color: #ffffff;
+}
+
+.banner-arquivo-nome {
+  font-size: 14px;
+  color: #555;
+}
+
+/* Campo de ativo/inativo alinhado com os demais campos */
+.banner-ativo-grupo {
+  justify-content: flex-end;
+}
+
+.banner-ativo-grupo .checkbox-group {
+  margin-top: 0;
+}
+
+.banner-ativo-grupo .checkbox-group input {
+  width: auto;
+}
+
+/* =========================================================================
+   PRÉ-VISUALIZAÇÃO: réplica do slide da home.
+   As medidas abaixo são as do carrossel real (app/globals.css + Bootstrap):
+   slide de 420 px de altura, camada escura de 45%, título 3rem em negrito,
+   subtítulo 1.25rem, texto 1rem e o mesmo botão (.btn-slide-cta, que vem do
+   globals.css). O slide é desenhado na largura real da tela escolhida e
+   reduzido com transform: scale (feito no componente).
+   ========================================================================= */
+
+.banner-previa-telas {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 10px;
+
+  margin-bottom: 18px;
+}
+
+.banner-previa-telas button {
+  padding: 9px 18px;
+
+  border: 2px solid #348888;
+  border-radius: 50px;
+
+  background-color: #ffffff;
+  color: #348888;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.banner-previa-telas button:hover {
+  background-color: #e3f6f5;
+}
+
+.banner-previa-telas button.ativa {
+  background-color: #348888;
+  color: #ffffff;
+}
+
+.banner-previa-area {
+  display: flex;
+  justify-content: center;
+
+  width: 100%;
+}
+
+.banner-previa-moldura {
+  position: relative;
+
+  flex-shrink: 0;
+  overflow: hidden;
+
+  border-radius: 14px;
+
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+.banner-previa-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+  transform-origin: top left;
+
+  /* sem imagem: mesmo fundo verde do slide sem imagem da home */
+  background-color: #348888;
+  background-image: linear-gradient(135deg, #348888 0%, #22babb 100%);
+  background-size: cover;
+  background-position: center;
+}
+
+.banner-previa-slide::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.45);
+}
+
+/* Os seletores abaixo começam por ".banner-previa-slide" de propósito: o Admin tem
+   regras mais "fortes" que bagunçariam a réplica (".admin-root * { margin: 0;
+   padding: 0 }" e ".form-card h2 { font-size: 24px; color: verde }"). */
+.banner-previa-slide .bp-conteudo {
+  position: relative;
+  z-index: 1;
+
+  padding: 0 1.5rem;
+
+  text-align: center;
+  color: #ffffff;
+}
+
+.banner-previa-slide .bp-titulo {
+  margin: 0 0 0.5rem;
+
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1.2;
+
+  color: #ffffff;
+}
+
+.banner-previa-slide .bp-lead {
+  margin: 0 0 0.25rem;
+
+  font-size: 1.25rem;
+  font-weight: 300;
+  line-height: 1.5;
+
+  color: #ffffff;
+}
+
+.banner-previa-slide .bp-texto {
+  margin: 0;
+
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+
+  color: #ffffff;
+}
+
+/* O botão usa a classe real da home (.btn-slide-cta, do globals.css); aqui só se
+   devolve o espaçamento que o ".admin-root *" zeraria. */
+.banner-previa-slide .btn-slide-cta {
+  margin-top: 1.5rem;
+  padding: 0.65rem 2.2rem;
+}
+
+.banner-previa-aviso {
+  display: inline-block;
+
+  margin-top: 14px;
+  padding: 10px 16px;
+
+  border-radius: 12px;
+
+  background-color: #e3f6f5;
+  color: #1d5b5b;
+
+  font-size: 14px;
+}
+
+/* Celular: mesmas regras de tela pequena do globals.css (título 1.5rem,
+   subtítulo 1rem e folga nas laterais para as setas) */
+.banner-previa-slide.bp-celular .bp-conteudo {
+  padding: 0 3.4rem;
+}
+
+.banner-previa-slide.bp-celular .bp-titulo {
+  font-size: 1.5rem;
+}
+
+.banner-previa-slide.bp-celular .bp-lead {
+  font-size: 1rem;
+}

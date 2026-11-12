@@ -1,0 +1,91 @@
+/* Complementa o ListaVacinas.css (cards, filtros, tabela, .acoes e status). */
+
+/* Mais respiro nas linhas (a miniatura é mais alta que o texto) */
+.banner-tabela th,
+.banner-tabela td {
+  padding: 14px 16px;
+
+  vertical-align: middle;
+}
+
+.banner-miniatura {
+  display: block;
+
+  width: 140px;
+  height: 52px;
+
+  object-fit: cover;
+
+  border-radius: 8px;
+}
+
+.banner-sem-imagem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: #eef3f3;
+  color: #7a8a8a;
+
+  font-size: 12px;
+}
+
+.banner-subtitulo {
+  margin-top: 4px;
+
+  font-size: 13px;
+  color: #666;
+}
+
+/* Situações que a lista de vacinas não tem */
+.status-inativo {
+  background-color: #8a8f94;
+}
+
+.status-agendado {
+  background-color: #2b7be4;
+}
+
+.banner-novo {
+  display: inline-flex;
+  align-items: center;
+
+  margin-left: auto;
+  padding: 14px 24px;
+
+  border-radius: 50px;
+
+  background-color: #FA7F08;
+  color: #ffffff;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  text-decoration: none;
+
+  transition: 0.2s;
+}
+
+.banner-novo:hover {
+  background-color: #e06e00;
+}
+
+.acoes .banner-btn-excluir {
+  background-color: #e53935;
+}
+
+.acoes .banner-btn-excluir:hover {
+  background-color: #b71c1c;
+}
+
+.banner-aviso {
+  padding: 24px 0 8px;
+
+  text-align: center;
+  color: #666;
+}
+
+.banner-erro {
+  color: #e53935;
+  font-weight: 600;
+}

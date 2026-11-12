@@ -90,12 +90,13 @@ const upload = multer({
 // continua indo para a pasta Server/img, como era antes.
 const { put, del } = require("@vercel/blob");
 
-async function salvarFoto(arquivo) {
+// "pasta" é só a pasta dentro do Blob (animais por padrão; os banners usam "banners").
+async function salvarFoto(arquivo, pasta = "animais") {
     const extensao = path.extname(arquivo.originalname);
     const nomeArquivo = `${Date.now()}-${Math.round(Math.random() * 1E9)}${extensao}`;
 
     if (process.env.BLOB_READ_WRITE_TOKEN) {
-        const blob = await put(`animais/${nomeArquivo}`, arquivo.buffer, {
+        const blob = await put(`${pasta}/${nomeArquivo}`, arquivo.buffer, {
             access: "public",
             contentType: arquivo.mimetype
         });
@@ -1074,6 +1075,228 @@ app.post('/usuarios', async (req, res) => {
     } catch (erro) {
         console.error('Erro ao cadastrar usuário:', erro);
         res.status(500).json({ erro: 'Erro interno no servidor' });
+    }
+});
+
+//========== BANNERS (carrossel da home) ==================================
+// Mesmo esquema do cadastro de animais: os dados vêm num formulário (FormData)
+// e a imagem num campo "imagem" (multer). A imagem vai para o Vercel Blob (ou
+// para Server/img, no computador) pela mesma função salvarFoto, e no banco
+// (tabela BANNER, criada por estruturabanco/CRIAR_BANNER.sql) fica só o
+// endereço dela. Cada banner é um slide do carrossel.
+
+// Colunas devolvidas (com nomes que o site já usa). As datas saem como
+// "2026-01-31" (estilo 23), que é o formato do campo de data do formulário.
+const COLUNAS_BANNER = `id_banner AS id, titulo, subtitulo, descricao,
+    texto_botao AS textoBotao, link_botao AS linkBotao, url_imagem AS urlImagem,
+    ordem, ativo,
+    CONVERT(VARCHAR(10), data_inicio, 23) AS dataInicio,
+    CONVERT(VARCHAR(10), data_fim, 23) AS dataFim`;
+
+// O link do botão vira um <a href> na home: só aceita página do próprio site
+// ("/..."), âncora ("#...") ou http(s). Isso impede "javascript:..." vindo do formulário.
+const linkValido = (l) => !l || /^(\/(?!\/)|#|https?:\/\/)/i.test(l);
+
+// Só imagens de verdade (o multer guarda qualquer arquivo; aqui filtramos)
+const imagemValida = (f) => !f || (/^image\//.test(f.mimetype) && /\.(jpe?g|png|webp|gif|avif)$/i.test(f.originalname));
+
+const textoOuNull = (v, max) => {
+    const t = String(v ?? "").trim();
+    return t ? t.slice(0, max) : null;
+};
+const dataOuNull = (v) => (/^\d{4}-\d{2}-\d{2}$/.test(String(v || "")) ? v : null);
+
+// Confere os campos do formulário. Devolve { erro } ou { dados }.
+function lerBanner(body) {
+    const titulo = textoOuNull(body.titulo, 120);
+    if (!titulo) return { erro: "Informe o título do banner." };
+
+    const link = textoOuNull(body.linkBotao, 300);
+    if (!linkValido(link)) return { erro: "O link deve começar com / (página do site), # ou http(s)://" };
+
+    const textoBotao = textoOuNull(body.textoBotao, 40);
+    if (textoBotao && !link) return { erro: "Informe o link do botão." };
+
+    const inicio = dataOuNull(body.dataInicio);
+    const fim = dataOuNull(body.dataFim);
+    if (inicio && fim && fim < inicio) return { erro: "A data final não pode ser anterior à inicial." };
+
+    const ordem = Number.parseInt(body.ordem, 10);
+
+    return {
+        dados: {
+            titulo,
+            subtitulo: textoOuNull(body.subtitulo, 200),
+            descricao: textoOuNull(body.descricao, 250),
+            textoBotao,
+            link,
+            inicio,
+            fim,
+            ordem: Number.isFinite(ordem) ? ordem : 1,
+            ativo: String(body.ativo) === "false" ? 0 : 1   // FormData manda "true"/"false" como texto
+        }
+    };
+}
+
+function pedidoBanner(cn, dados, urlImagem) {
+    return cn.request()
+        .input("titulo", sql.NVarChar(120), dados.titulo)
+        .input("subtitulo", sql.NVarChar(200), dados.subtitulo)
+        .input("descricao", sql.NVarChar(250), dados.descricao)
+        .input("textoBotao", sql.NVarChar(40), dados.textoBotao)
+        .input("link", sql.VarChar(300), dados.link)
+        .input("urlImagem", sql.VarChar(500), urlImagem)
+        .input("ordem", sql.Int, dados.ordem)
+        .input("ativo", sql.Bit, dados.ativo)
+        .input("inicio", sql.Date, dados.inicio)
+        .input("fim", sql.Date, dados.fim);
+}
+
+// ----- LISTA PARA O SITE: só os banners ativos e dentro do período -----
+// A data de hoje é a do Brasil (o servidor do banco na nuvem usa UTC).
+// (esta rota vem ANTES de /banners/:id, senão "ativos" seria lido como id)
+app.get("/banners/ativos", async (req, resp) => {
+    try {
+        const cn = await conectar();
+        const r = await cn.request().query(`
+            SELECT ${COLUNAS_BANNER} FROM BANNER
+            WHERE ativo = 1
+              AND (data_inicio IS NULL OR data_inicio <= CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'E. South America Standard Time' AS DATE))
+              AND (data_fim IS NULL OR data_fim >= CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'E. South America Standard Time' AS DATE))
+            ORDER BY ordem, id_banner`);
+        resp.json(r.recordset);
+    } catch (e) {
+        console.error(e);
+        resp.status(500).json({ erro: e.message });
+    }
+});
+
+// ----- LISTA PARA O ADMIN: todos (ativos, inativos e fora do período) -----
+app.get("/banners", async (req, resp) => {
+    try {
+        const cn = await conectar();
+        const r = await cn.request().query(`SELECT ${COLUNAS_BANNER} FROM BANNER ORDER BY ordem, id_banner`);
+        resp.json(r.recordset);
+    } catch (e) {
+        console.error(e);
+        resp.status(500).json({ erro: e.message });
+    }
+});
+
+app.get("/banners/:id", async (req, resp) => {
+    try {
+        const id = parseInt(req.params.id);
+        if (!Number.isInteger(id)) return resp.status(400).json({ erro: "Banner inválido" });
+        const cn = await conectar();
+        const r = await cn.request().input("id", sql.Int, id)
+            .query(`SELECT ${COLUNAS_BANNER} FROM BANNER WHERE id_banner = @id`);
+        if (r.recordset.length === 0) return resp.status(404).json({ erro: "Banner não encontrado" });
+        resp.json(r.recordset[0]);
+    } catch (e) {
+        console.error(e);
+        resp.status(500).json({ erro: e.message });
+    }
+});
+
+// ----- CADASTRAR -----
+app.post("/banners", upload.single("imagem"), async (req, resp) => {
+    try {
+        const { erro, dados } = lerBanner(req.body);
+        if (erro) return resp.status(400).json({ erro });
+        if (!imagemValida(req.file)) return resp.status(400).json({ erro: "Envie uma imagem (JPG, PNG, WEBP ou GIF)." });
+
+        const cn = await conectar();
+        const urlImagem = req.file ? await salvarFoto(req.file, "banners") : null;
+        try {
+            const r = await pedidoBanner(cn, dados, urlImagem).query(`
+                INSERT INTO BANNER (titulo, subtitulo, descricao, texto_botao, link_botao, url_imagem, ordem, ativo, data_inicio, data_fim)
+                OUTPUT INSERTED.id_banner AS id
+                VALUES (@titulo, @subtitulo, @descricao, @textoBotao, @link, @urlImagem, @ordem, @ativo, @inicio, @fim)`);
+            resp.status(201).json({ mensagem: "Banner cadastrado com sucesso!", id: r.recordset[0].id });
+        } catch (e) {
+            await apagarFotos([urlImagem]);   // não deixa a imagem órfã se o banco recusar
+            throw e;
+        }
+    } catch (e) {
+        console.error(e);
+        resp.status(500).json({ erro: e.message });
+    }
+});
+
+// ----- ALTERAR -----
+// Imagem nova substitui a antiga; "removerImagem=true" tira a imagem; sem nenhuma
+// das duas, a imagem continua como está.
+app.put("/banners/:id", upload.single("imagem"), async (req, resp) => {
+    try {
+        const id = parseInt(req.params.id);
+        if (!Number.isInteger(id)) return resp.status(400).json({ erro: "Banner inválido" });
+        const { erro, dados } = lerBanner(req.body);
+        if (erro) return resp.status(400).json({ erro });
+        if (!imagemValida(req.file)) return resp.status(400).json({ erro: "Envie uma imagem (JPG, PNG, WEBP ou GIF)." });
+
+        const cn = await conectar();
+        const atual = await cn.request().input("id", sql.Int, id)
+            .query("SELECT url_imagem FROM BANNER WHERE id_banner = @id");
+        if (atual.recordset.length === 0) return resp.status(404).json({ erro: "Banner não encontrado" });
+        const antiga = atual.recordset[0].url_imagem;
+
+        let urlImagem = antiga;
+        if (req.file) urlImagem = await salvarFoto(req.file, "banners");
+        else if (String(req.body.removerImagem) === "true") urlImagem = null;
+
+        try {
+            await pedidoBanner(cn, dados, urlImagem).input("id", sql.Int, id).query(`
+                UPDATE BANNER
+                SET titulo = @titulo, subtitulo = @subtitulo, descricao = @descricao,
+                    texto_botao = @textoBotao, link_botao = @link, url_imagem = @urlImagem,
+                    ordem = @ordem, ativo = @ativo, data_inicio = @inicio, data_fim = @fim,
+                    atualizado_em = GETDATE()
+                WHERE id_banner = @id`);
+        } catch (e) {
+            if (urlImagem !== antiga) await apagarFotos([urlImagem]);
+            throw e;
+        }
+
+        if (urlImagem !== antiga) await apagarFotos([antiga]);   // só depois de tudo gravado
+        resp.json({ mensagem: "Banner atualizado com sucesso!" });
+    } catch (e) {
+        console.error(e);
+        resp.status(500).json({ erro: e.message });
+    }
+});
+
+// ----- LIGAR / DESLIGAR (usado pelo botão da lista) -----
+app.put("/banners/:id/ativo", async (req, resp) => {
+    try {
+        const id = parseInt(req.params.id);
+        if (!Number.isInteger(id)) return resp.status(400).json({ erro: "Banner inválido" });
+        const cn = await conectar();
+        const r = await cn.request()
+            .input("id", sql.Int, id)
+            .input("ativo", sql.Bit, req.body && req.body.ativo ? 1 : 0)
+            .query("UPDATE BANNER SET ativo = @ativo, atualizado_em = GETDATE() OUTPUT INSERTED.id_banner WHERE id_banner = @id");
+        if (r.recordset.length === 0) return resp.status(404).json({ erro: "Banner não encontrado" });
+        resp.json({ mensagem: "Banner atualizado com sucesso!" });
+    } catch (e) {
+        console.error(e);
+        resp.status(500).json({ erro: e.message });
+    }
+});
+
+// ----- EXCLUIR -----
+app.delete("/banners/:id", async (req, resp) => {
+    try {
+        const id = parseInt(req.params.id);
+        if (!Number.isInteger(id)) return resp.status(400).json({ erro: "Banner inválido" });
+        const cn = await conectar();
+        const r = await cn.request().input("id", sql.Int, id)
+            .query("DELETE FROM BANNER OUTPUT DELETED.url_imagem WHERE id_banner = @id");
+        if (r.recordset.length === 0) return resp.status(404).json({ erro: "Banner não encontrado" });
+        await apagarFotos([r.recordset[0].url_imagem]);
+        resp.json({ mensagem: "Banner excluído com sucesso!" });
+    } catch (e) {
+        console.error(e);
+        resp.status(500).json({ erro: e.message });
     }
 });
 

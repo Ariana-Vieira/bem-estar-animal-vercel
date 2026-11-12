@@ -500,6 +500,16 @@ a {
     background-image: url('https://images.unsplash.com/photo-1552053831-71594a27632d?w=1200');
 }
 
+/* Banner cadastrado sem imagem, e fundo enquanto os banners carregam */
+.slide-sem-imagem,
+.slide-carregando {
+    background-image: linear-gradient(135deg, var(--cor-verde-agua) 0%, var(--cor-ciano-medio) 100%);
+}
+
+.slide-carregando::before {
+    display: none;
+}
+
 .conteudo-slide {
     position: relative;
     z-index: 1;
@@ -1352,7 +1362,24 @@ body.filtro-tritanopia {
     .conteudo-slide .lead {
         font-size: 1rem;
     }
-    
+
+    /* Setas menores e texto com folga nas laterais, para as setas não cobrirem o texto do banner */
+    .conteudo-slide {
+        padding: 0 3.4rem;
+    }
+
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 14%;
+        min-width: 46px;
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        width: 38px;
+        height: 38px;
+    }
+
     .wrapper-noticias {
         flex-direction: column;
     }
