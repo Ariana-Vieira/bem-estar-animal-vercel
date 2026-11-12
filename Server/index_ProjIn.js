@@ -320,13 +320,20 @@ app.post("/INSERT", upload.array("fotos", 3), async (req, res) => {
                 `);
 
 
+    // Pegar o ID DO ANIMAL E COLOCAR  NA TABELA FOTO
+    // ==========================================
+
     const idAnimal = result.recordset[0].id_animal;
+    // 3 - CADASTRAR AS FOTOS
+    // ==========================================
 
     if (req.files && req.files.length > 0) {
 
         for (let i = 0; i < req.files.length; i++) {
             const foto = req.files[i];
+            // Caminho que será salvo no banco (URL do Blob ou /img/arquivo)
             const caminhoFoto = await salvarFoto(foto);
+            console.log("Foto:", caminhoFoto);
             await cn
                 .request()
                 .input("id_animal", sql.Int, idAnimal)
