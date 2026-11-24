@@ -78,7 +78,7 @@ O projeto é dividido em duas partes, cada uma hospedada na Vercel:
 - **Front-end** (Next.js): páginas do portal, do Meetin'Pet e da área administrativa.
 - **API REST** (Node.js/Express, pasta `Server`): recebe as requisições do front-end e acessa o banco de dados SQL Server.
 
-O front-end consome a API pelo endereço definido em `NEXT_PUBLIC_API_URL` (padrão local: `http://localhost:3010`).
+Em produção, o front-end usa a API hospedada na Vercel, pelo endereço definido na variável de ambiente `NEXT_PUBLIC_API_URL`. Para rodar localmente, sem essa variável, ele usa `http://localhost:3010`.
 
 ## 📡 Rotas principais da API
 
