@@ -20,8 +20,13 @@ export default function Menu() {
 
   useEffect(() => {
     const usuario = getUsuario();
+    // TEMPORARIO: login desligado. Para reativar, apague a linha "AUTH_DESLIGADA" e descomente o bloco abaixo.
+    // if (!usuario) {
+    //   router.push('/login');
+    //   return;
+    // }
     if (!usuario) {
-      router.push('/login');
+      setPermissoes(['admin']); // AUTH_DESLIGADA: sem login, mostra todos os itens
       return;
     }
     setPermissoes(usuario.permissoes.map(p => p.nome));
