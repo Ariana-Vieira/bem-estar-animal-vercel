@@ -128,6 +128,33 @@ app.use("/img", express.static(pastaUploads));
 //=======================================
 
 
+//========== DOCUMENTAÇÃO DA API (Swagger) ============
+// /docs mostra a página do Swagger UI; /docs/swagger.json entrega a descrição das
+// rotas (arquivo swagger.js). A página carrega o visual do Swagger por CDN: assim
+// funciona também na Vercel, sem instalar nenhuma biblioteca.
+const documentacaoApi = require("./swagger");
+
+app.get("/docs/swagger.json", (req, resp) => resp.json(documentacaoApi));
+
+app.get("/docs", (req, resp) => {
+    resp.send(`<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API Bem-Estar Animal - Documentação</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.17.14/swagger-ui.css">
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://unpkg.com/swagger-ui-dist@5.17.14/swagger-ui-bundle.js"></script>
+  <script>
+    SwaggerUIBundle({ url: "/docs/swagger.json", dom_id: "#swagger-ui" });
+  </script>
+</body>
+</html>`);
+});
+
 //========== LER A QUANTIDADE DE REGISTRO  ANIMAIS ============
 app.get('/qtd', async (req, resp) => {
     try {
@@ -1294,6 +1321,190 @@ app.delete("/banners/:id", async (req, resp) => {
         if (r.recordset.length === 0) return resp.status(404).json({ erro: "Banner não encontrado" });
         await apagarFotos([r.recordset[0].url_imagem]);
         resp.json({ mensagem: "Banner excluído com sucesso!" });
+    } catch (e) {
+        console.error(e);
+        resp.status(500).json({ erro: e.message });
+    }
+});
+
+//========== NOTICIAS =====================================================
+// Mesmo esquema dos banners: dados em FormData, imagem no campo "imagem" (vai
+// para o Vercel Blob pela salvarFoto) e, na tabela NOTICIA (criada por
+// estruturabanco/CRIAR_NOTICIA.sql), fica só o endereço da imagem.
+
+// Colunas devolvidas. A data sai como "2026-01-31" (formato do campo de data).
+const COLUNAS_NOTICIA = `id_noticia AS id, titulo, resumo, conteudo,
+    url_imagem AS urlImagem, ativo,
+    CONVERT(VARCHAR(10), data_publicacao, 23) AS dataPublicacao`;
+
+// Confere os campos do formulário. Devolve { erro } ou { dados }.
+function lerNoticia(body) {
+    const titulo = textoOuNull(body.titulo, 150);
+    if (!titulo) return { erro: "Informe o título da notícia." };
+
+    const dataPublicacao = dataOuNull(body.dataPublicacao);
+    if (!dataPublicacao) return { erro: "Informe a data de publicação." };
+
+    return {
+        dados: {
+            titulo,
+            resumo: textoOuNull(body.resumo, 250),
+            conteudo: textoOuNull(body.conteudo, 20000),
+            dataPublicacao,
+            ativo: String(body.ativo) === "false" ? 0 : 1   // FormData manda "true"/"false" como texto
+        }
+    };
+}
+
+function pedidoNoticia(cn, dados, urlImagem) {
+    return cn.request()
+        .input("titulo", sql.NVarChar(150), dados.titulo)
+        .input("resumo", sql.NVarChar(250), dados.resumo)
+        .input("conteudo", sql.NVarChar(sql.MAX), dados.conteudo)
+        .input("urlImagem", sql.VarChar(500), urlImagem)
+        .input("dataPublicacao", sql.Date, dados.dataPublicacao)
+        .input("ativo", sql.Bit, dados.ativo);
+}
+
+// ----- LISTA PARA O SITE: só as ativas e já publicadas (data de hoje = a do Brasil) -----
+// (vem ANTES de /noticias/:id, senão "ativas" seria lido como id)
+app.get("/noticias/ativas", async (req, resp) => {
+    try {
+        const cn = await conectar();
+        const r = await cn.request().query(`
+            SELECT ${COLUNAS_NOTICIA} FROM NOTICIA
+            WHERE ativo = 1
+              AND data_publicacao <= CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'E. South America Standard Time' AS DATE)
+            ORDER BY data_publicacao DESC, id_noticia DESC`);
+        resp.json(r.recordset);
+    } catch (e) {
+        console.error(e);
+        resp.status(500).json({ erro: e.message });
+    }
+});
+
+// ----- LISTA PARA O ADMIN: todas -----
+app.get("/noticias", async (req, resp) => {
+    try {
+        const cn = await conectar();
+        const r = await cn.request().query(`SELECT ${COLUNAS_NOTICIA} FROM NOTICIA ORDER BY data_publicacao DESC, id_noticia DESC`);
+        resp.json(r.recordset);
+    } catch (e) {
+        console.error(e);
+        resp.status(500).json({ erro: e.message });
+    }
+});
+
+app.get("/noticias/:id", async (req, resp) => {
+    try {
+        const id = parseInt(req.params.id);
+        if (!Number.isInteger(id)) return resp.status(400).json({ erro: "Notícia inválida" });
+        const cn = await conectar();
+        const r = await cn.request().input("id", sql.Int, id)
+            .query(`SELECT ${COLUNAS_NOTICIA} FROM NOTICIA WHERE id_noticia = @id`);
+        if (r.recordset.length === 0) return resp.status(404).json({ erro: "Notícia não encontrada" });
+        resp.json(r.recordset[0]);
+    } catch (e) {
+        console.error(e);
+        resp.status(500).json({ erro: e.message });
+    }
+});
+
+// ----- CADASTRAR -----
+app.post("/noticias", upload.single("imagem"), async (req, resp) => {
+    try {
+        const { erro, dados } = lerNoticia(req.body);
+        if (erro) return resp.status(400).json({ erro });
+        if (!imagemValida(req.file)) return resp.status(400).json({ erro: "Envie uma imagem (JPG, PNG, WEBP ou GIF)." });
+
+        const cn = await conectar();
+        const urlImagem = req.file ? await salvarFoto(req.file, "noticias") : null;
+        try {
+            const r = await pedidoNoticia(cn, dados, urlImagem).query(`
+                INSERT INTO NOTICIA (titulo, resumo, conteudo, url_imagem, data_publicacao, ativo)
+                OUTPUT INSERTED.id_noticia AS id
+                VALUES (@titulo, @resumo, @conteudo, @urlImagem, @dataPublicacao, @ativo)`);
+            resp.status(201).json({ mensagem: "Notícia cadastrada com sucesso!", id: r.recordset[0].id });
+        } catch (e) {
+            await apagarFotos([urlImagem]);   // não deixa a imagem órfã se o banco recusar
+            throw e;
+        }
+    } catch (e) {
+        console.error(e);
+        resp.status(500).json({ erro: e.message });
+    }
+});
+
+// ----- ALTERAR -----
+// Imagem nova substitui a antiga; "removerImagem=true" tira a imagem; sem nenhuma
+// das duas, a imagem continua como está.
+app.put("/noticias/:id", upload.single("imagem"), async (req, resp) => {
+    try {
+        const id = parseInt(req.params.id);
+        if (!Number.isInteger(id)) return resp.status(400).json({ erro: "Notícia inválida" });
+        const { erro, dados } = lerNoticia(req.body);
+        if (erro) return resp.status(400).json({ erro });
+        if (!imagemValida(req.file)) return resp.status(400).json({ erro: "Envie uma imagem (JPG, PNG, WEBP ou GIF)." });
+
+        const cn = await conectar();
+        const atual = await cn.request().input("id", sql.Int, id)
+            .query("SELECT url_imagem FROM NOTICIA WHERE id_noticia = @id");
+        if (atual.recordset.length === 0) return resp.status(404).json({ erro: "Notícia não encontrada" });
+        const antiga = atual.recordset[0].url_imagem;
+
+        let urlImagem = antiga;
+        if (req.file) urlImagem = await salvarFoto(req.file, "noticias");
+        else if (String(req.body.removerImagem) === "true") urlImagem = null;
+
+        try {
+            await pedidoNoticia(cn, dados, urlImagem).input("id", sql.Int, id).query(`
+                UPDATE NOTICIA
+                SET titulo = @titulo, resumo = @resumo, conteudo = @conteudo,
+                    url_imagem = @urlImagem, data_publicacao = @dataPublicacao, ativo = @ativo,
+                    atualizado_em = GETDATE()
+                WHERE id_noticia = @id`);
+        } catch (e) {
+            if (urlImagem !== antiga) await apagarFotos([urlImagem]);
+            throw e;
+        }
+
+        if (urlImagem !== antiga) await apagarFotos([antiga]);   // só depois de tudo gravado
+        resp.json({ mensagem: "Notícia atualizada com sucesso!" });
+    } catch (e) {
+        console.error(e);
+        resp.status(500).json({ erro: e.message });
+    }
+});
+
+// ----- LIGAR / DESLIGAR (usado pelo botão da lista) -----
+app.put("/noticias/:id/ativo", async (req, resp) => {
+    try {
+        const id = parseInt(req.params.id);
+        if (!Number.isInteger(id)) return resp.status(400).json({ erro: "Notícia inválida" });
+        const cn = await conectar();
+        const r = await cn.request()
+            .input("id", sql.Int, id)
+            .input("ativo", sql.Bit, req.body && req.body.ativo ? 1 : 0)
+            .query("UPDATE NOTICIA SET ativo = @ativo, atualizado_em = GETDATE() OUTPUT INSERTED.id_noticia WHERE id_noticia = @id");
+        if (r.recordset.length === 0) return resp.status(404).json({ erro: "Notícia não encontrada" });
+        resp.json({ mensagem: "Notícia atualizada com sucesso!" });
+    } catch (e) {
+        console.error(e);
+        resp.status(500).json({ erro: e.message });
+    }
+});
+
+// ----- EXCLUIR -----
+app.delete("/noticias/:id", async (req, resp) => {
+    try {
+        const id = parseInt(req.params.id);
+        if (!Number.isInteger(id)) return resp.status(400).json({ erro: "Notícia inválida" });
+        const cn = await conectar();
+        const r = await cn.request().input("id", sql.Int, id)
+            .query("DELETE FROM NOTICIA OUTPUT DELETED.url_imagem WHERE id_noticia = @id");
+        if (r.recordset.length === 0) return resp.status(404).json({ erro: "Notícia não encontrada" });
+        await apagarFotos([r.recordset[0].url_imagem]);
+        resp.json({ mensagem: "Notícia excluída com sucesso!" });
     } catch (e) {
         console.error(e);
         resp.status(500).json({ erro: e.message });

@@ -16,6 +16,7 @@ Disciplina: Desenvolvimento Web III.
 
 - Aplicação (front-end): https://bem-estar-animal-votorantim.vercel.app
 - API pública: https://bem-estar-animal-api.vercel.app
+- Documentação da API (Swagger): https://bem-estar-animal-api.vercel.app/docs
 - Repositório: https://github.com/Ariana-Vieira/bem-estar-animal-vercel
 
 ## 📋 Sobre o Projeto
