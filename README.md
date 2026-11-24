@@ -66,7 +66,7 @@ Nossa equipe foi responsável pelo desenvolvimento de:
 - HTML5
 - CSS3
 - Node.js e Express (API REST)
-- SQL Server (banco de dados relacional)
+- SQL Server na Azure (banco de dados relacional)
 - Vercel (hospedagem do site e da API)
 - Figma
 - Git/GitHub
