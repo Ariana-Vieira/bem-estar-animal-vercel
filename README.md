@@ -98,10 +98,19 @@ Em produção, o front-end usa a API hospedada na Vercel, pelo endereço definid
 | POST | `/banners` | Cadastra um banner |
 | PUT | `/banners/:id` | Atualiza um banner |
 | DELETE | `/banners/:id` | Remove um banner |
+| GET | `/noticias` | Lista as notícias |
+| GET | `/noticias/ativas` | Lista as notícias ativas e já publicadas (usadas no site) |
+| GET | `/noticias/:id` | Busca uma notícia |
+| POST | `/noticias` | Cadastra uma notícia (com imagem) |
+| PUT | `/noticias/:id` | Atualiza uma notícia |
+| PUT | `/noticias/:id/ativo` | Liga ou desliga uma notícia |
+| DELETE | `/noticias/:id` | Remove uma notícia |
 | POST | `/usuarios` | Cadastra um usuário |
 | PUT | `/usuarios/:id` | Atualiza um usuário |
 | DELETE | `/usuarios/:id` | Remove um usuário |
 | POST | `/login` | Login |
+
+A lista completa, com os campos de cada rota e a opção de testar, está na documentação Swagger: https://bem-estar-animal-api.vercel.app/docs
 
 ## ▶️ Como rodar localmente
 
