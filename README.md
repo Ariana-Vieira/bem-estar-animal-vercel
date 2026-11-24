@@ -57,7 +57,7 @@ Nossa equipe foi responsável pelo desenvolvimento de:
 - Listagem de animais para adoção;
 - Sistema de filtros de busca;
 - Estrutura visual e experiência do usuário (UI/UX);
-- API REST integrada ao banco de dados, com área administrativa.
+- API REST integrada ao banco de dados.
 
 ## 🛠️ Tecnologias Utilizadas
 
